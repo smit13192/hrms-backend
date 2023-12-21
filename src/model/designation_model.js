@@ -1,12 +1,12 @@
-const {Schema,model}=require("mongoose");
+const { Schema, model } = require("mongoose");
 
-const designationSchema=new Schema({
-    name:{
-        type:String,
-        required:true
+const designationSchema = new Schema({
+    name: {
+        type: String,
+        required: true
     }
-},{
-    timestamps:true,
+}, {
+    timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {
             delete ret._id;
@@ -16,6 +16,6 @@ const designationSchema=new Schema({
     },
 })
 
-const designationModel=model("designation",designationSchema);
+const designationModel = model("designation", designationSchema);
 
-module.exports=designationModel;
+module.exports = designationModel;
