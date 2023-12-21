@@ -1,4 +1,4 @@
-const { Schema, model } = require ('mongoose');
+const { Schema, model } = require('mongoose');
 
 const OTP = new Schema({
     email: {
@@ -7,6 +7,7 @@ const OTP = new Schema({
     },
     otp: {
         type: String,
+        required: true,
     }
 },
     { timestamps: true },
