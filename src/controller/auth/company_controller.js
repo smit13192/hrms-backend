@@ -22,7 +22,7 @@ async function verifyEmail(req, res, next) {
             if (err) {
                 return next(new ApiError(400, err.message));
             }
-            await OtpModel.deleteMany({ email: email })
+            await OtpModel.deleteMany({ email: email });
             const otpModel = new OtpModel({ email, otp });
             await otpModel.save();
             setTimeout(async () => {
@@ -35,8 +35,21 @@ async function verifyEmail(req, res, next) {
     }
 }
 
-async function verifyOtp(req,res,next){
-
+async function verifyOtp(req, res, next) {
+    try {
+        const { email, otp } = req.body;
+        const findOtp = await OtpModel.findOne({ email });
+        if (!findOtp) {
+            return next(new ApiError(400, "Otp Expired"));
+        }
+        if (findOtp.otp !== otp) {
+            return next(new ApiError(400, "Otp is wrong"));
+        }
+        await OtpModel.deleteMany({ email: email });
+        res.status(200).json({ success: true, message: "Otp is write" });
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
 }
 
 async function createCompany(req, res, next) {
@@ -63,4 +76,24 @@ async function createCompany(req, res, next) {
     }
 }
 
-module.exports = { verifyEmail, verifyOtp, createCompany };
+async function updateCompany(req, res, next) {
+    try {
+        delete req.body.email;
+        delete req.body.password;
+        const id = req.id;
+        const file = req.file;
+        if (file) {
+            const path = file.path;
+            const result = await cloudinary.uploader.upload(path);
+            req.body.logo = result.secure_url;
+            req.body.publicId = result.public_id;
+            fs.unlinkSync(path);
+        }
+        const company = await CompanyModel.findByIdAndUpdate(id, { $set: req.body }, { new: true });
+        res.status(201).json({ success: true, message: "Detail updated successfully", data: company });
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany };

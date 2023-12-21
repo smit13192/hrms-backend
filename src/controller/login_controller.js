@@ -2,7 +2,7 @@ const ApiError = require("../utils/error")
 const { compareHash } = require("../utils/hash")
 const CompanyModel = require("../model/company_model")
 const { COMPANY_ROLE } = require("../config/string")
-const { createToken } = require("../authentication/jwtToken")
+const { createToken } = require("../authentication/jwt_token")
 
 async function login(req, res, next) {
     try {
