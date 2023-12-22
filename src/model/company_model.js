@@ -2,6 +2,9 @@ const { Schema, model } = require("mongoose");
 const { hashPassword } = require("../utils/hash");
 const EmployeeModel = require("./employee_model");
 const cloudinary = require("../utils/cloudinary");
+const DesignationModel = require("./designation_model");
+const DepartmentModel = require("./department_model");
+const HolidayModel = require("./holiday_model");
 
 const companySchema = new Schema({
     logo: {
@@ -93,6 +96,9 @@ companySchema.pre("save", function (next) {
 companySchema.pre("findOneAndDelete", async function (next) {
     const query = this;
     await EmployeeModel.deleteMany({ company: query._conditions._id });
+    await DesignationModel.deleteMany({ companyId: query._conditions._id });
+    await DepartmentModel.deleteMany({ companyId: query._conditions._id });
+    await HolidayModel.deleteMany({ companyId: query._conditions._id });
     next();
 });
 

@@ -142,6 +142,11 @@ employeeSchema.pre("save", function (next) {
     next();
 });
 
+employeeSchema.statics.getCompanyId = async function (employeeId) {
+    const employee = await EmployeeModel.findById(employeeId).select(["company"]);
+    return employee.company;
+}
+
 const EmployeeModel = model("employees", employeeSchema);
 
 module.exports = EmployeeModel;

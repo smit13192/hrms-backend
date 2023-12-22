@@ -11,6 +11,7 @@ const holidaySchema = new Schema({
     },
     endDate: {
         type: Date,
+        default: null
     },
     holidayType: {
         type: String,
@@ -18,6 +19,7 @@ const holidaySchema = new Schema({
     },
     description: {
         type: String,
+        default: null
     },
     companyId: {
         type: Schema.Types.ObjectId,
@@ -36,6 +38,6 @@ const holidaySchema = new Schema({
         }
     })
 
-const holidayModel = model("holiday", holidaySchema)
+const HolidayModel = model("holiday", holidaySchema)
 
-module.exports = holidayModel
+module.exports = HolidayModel

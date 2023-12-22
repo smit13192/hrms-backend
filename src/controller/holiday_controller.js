@@ -1,5 +1,7 @@
 const ApiError = require("../utils/error")
 const HolidayModel = require("../model/holiday_model")
+const { EMPLOYEE_ROLE } = require("../config/string")
+const EmployeeModel = require("../model/employee_model")
 
 async function addHoliday(req, res, next) {
     try {
@@ -14,8 +16,12 @@ async function addHoliday(req, res, next) {
 
 async function getHoliday(req, res, next) {
     try {
-        const holidays = await HolidayModel.find({ companyId: req.id })
-        res.status(200).json({ success: true, holidays })
+        let companyId = req.id;
+        if(req.role === EMPLOYEE_ROLE) {
+            companyId = await EmployeeModel.getCompanyId(req.id);
+        }
+        const holidays = await HolidayModel.find({ companyId });
+        res.status(200).json({ success: true, holidays });
     } catch (error) {
         return next(new ApiError(400, e.message))
     }
