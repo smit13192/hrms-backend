@@ -5,6 +5,7 @@ const loginRouter = require("./login_router");
 const departmentRouter = require("./department_router")
 const designationRouter = require("./designation_route")
 const holidayRouter=require("./holiday_route")
+const projectRouter=require("./project_router")
 
 const router = Router();
 router.use("/company", companyRouter);
@@ -13,5 +14,6 @@ router.use(loginRouter)
 router.use("/department", departmentRouter)
 router.use("/designation", designationRouter)
 router.use("/holiday", holidayRouter)
+router.use("/project", projectRouter)
 
 module.exports = router;
