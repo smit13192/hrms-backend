@@ -16,9 +16,13 @@ function verifyUser(role) {
             if (typeof role === "string") {
                 if (data.role === role) {
                     req.id = data._id;
+                    req.role = data.role;
                     return next();
-                } else if (role.includes(data.role)) {
+                }
+            } else {
+                if (role.includes(data.role)) {
                     req.id = data._id;
+                    req.role = data.role;
                     return next();
                 }
             }

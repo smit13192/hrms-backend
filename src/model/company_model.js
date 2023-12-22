@@ -1,5 +1,7 @@
 const { Schema, model } = require("mongoose");
 const { hashPassword } = require("../utils/hash");
+const EmployeeModel = require("./employee_model");
+const cloudinary = require("../utils/cloudinary");
 
 const companySchema = new Schema({
     logo: {
@@ -84,6 +86,21 @@ const companySchema = new Schema({
 companySchema.pre("save", function (next) {
     if (this.isModified(["password"])) {
         this.password = hashPassword(this.password);
+    }
+    next();
+});
+
+companySchema.pre("findOneAndDelete", async function (next) {
+    const query = this;
+    await EmployeeModel.deleteMany({ company: query._conditions._id });
+    next();
+});
+
+companySchema.pre("findOneAndUpdate", async function (next) {
+    const update = this._update;
+    if(update.$set.publicId) {
+        const previousDocument = await this.model.findOne(this.getQuery());
+        await cloudinary.uploader.destroy(previousDocument.publicId);
     }
     next();
 });

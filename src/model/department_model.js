@@ -14,7 +14,7 @@ const departmentSchema = new Schema({
         virtuals: true,
         versionKey: false,
     },
-})
+});
 
 const DepartmentModel = model("department", departmentSchema);
 

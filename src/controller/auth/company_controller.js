@@ -6,6 +6,7 @@ const generateOtp = require("../../utils/generate_otp");
 const transporter = require("../../utils/transporter");
 const fs = require("fs");
 const path = require("path");
+const EmployeeModel = require("../../model/employee_model");
 
 async function verifyEmail(req, res, next) {
     try {
@@ -89,11 +90,38 @@ async function updateCompany(req, res, next) {
             req.body.publicId = result.public_id;
             fs.unlinkSync(path);
         }
-        const company = await CompanyModel.findByIdAndUpdate(id, { $set: req.body }, { new: true });
-        res.status(201).json({ success: true, message: "Detail updated successfully", data: company });
+        const company = await CompanyModel.findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true });
+        res.status(200).json({ success: true, message: "Detail updated successfully", data: company });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
 }
 
-module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany };
+async function deleteCompany(req, res, next) {
+    try {
+        const id = req.id;
+        const company = await CompanyModel.findOneAndDelete({ _id: id });
+        await cloudinary.uploader.destroy(company.publicId);
+        res.status(200).json({ success: true, message: "company delete successfully" });
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
+async function addEmployee(req, res, next) {
+    try {
+        const id = req.id;
+        const findEmployee = await EmployeeModel.findOne({ email: req.body.email, company: id });
+        if (findEmployee) {
+            return next(new ApiError(400, "Already conatin this email in your company"))
+        }
+        req.body.company = id;
+        const employee = new EmployeeModel(req.body);
+        await employee.save();
+        res.status(201).json({ success: true, message: "Employee added successfully" });
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, addEmployee };

@@ -14,7 +14,7 @@ const designationSchema = new Schema({
         virtuals: true,
         versionKey: false,
     },
-})
+});
 
 const designationModel = model("designation", designationSchema);
 

@@ -31,7 +31,7 @@ async function updateDesignation(req, res, next) {
 
 async function deleteDesignation(req, res, next) {
     try {
-        const designation = await DesignationModel.findByIdAndDelete({ _id: req.params.id })
+        await DesignationModel.findByIdAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "designation delete successfully" });
     } catch (error) {
         return next(new ApiError(400, error.message))

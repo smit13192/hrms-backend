@@ -31,7 +31,7 @@ async function updateDepartment(req, res, next) {
 
 async function deleteDepartment(req, res, next) {
     try {
-        const department = await DepartmentModel.findByIdAndDelete({ _id: req.params.id })
+        await DepartmentModel.findByIdAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "department delete successfully" });
     } catch (error) {
         return next(new ApiError(400, error.message))
