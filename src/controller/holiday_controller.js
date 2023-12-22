@@ -21,7 +21,7 @@ async function getHoliday(req, res, next) {
             companyId = await EmployeeModel.getCompanyId(req.id);
         }
         const holidays = await HolidayModel.find({ companyId });
-        res.status(200).json({ success: true, holidays });
+        res.status(200).json({ success: true, date: holidays });
     } catch (error) {
         return next(new ApiError(400, e.message))
     }
