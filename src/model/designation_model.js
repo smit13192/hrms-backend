@@ -5,9 +5,9 @@ const designationSchema = new Schema({
         type: String,
         required: true
     },
-    company_id:{
-        type:Schema.Types.ObjectId,
-        ref:"companies",
+    companyId: {
+        type: Schema.Types.ObjectId,
+        ref: "companies",
         required: true,
     }
 }, {
@@ -19,8 +19,8 @@ const designationSchema = new Schema({
         virtuals: true,
         versionKey: false,
     },
-})
+});
 
-const designationModel = model("designation", designationSchema);
+const DesignationModel = model("designation", designationSchema);
 
-module.exports = designationModel;
+module.exports = DesignationModel;

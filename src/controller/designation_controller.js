@@ -3,7 +3,7 @@ const DesignationModel = require("../model/designation_model")
 
 async function addDesignation(req, res, next) {
     try {
-        req.body.company_id=req.id
+        req.body.companyId = req.id
         const designation = new DesignationModel(req.body)
         await designation.save()
         res.status(201).json({ success: true, data: designation, message: "designation added successfully" })
@@ -14,7 +14,7 @@ async function addDesignation(req, res, next) {
 
 async function getDesignation(req, res, next) {
     try {
-        const designations = await DesignationModel.find({company_id:req.id})
+        const designations = await DesignationModel.find({ companyId: req.id })
         res.status(200).json({ success: true, data: designations })
     } catch (error) {
         return next(new ApiError(400, error.message))

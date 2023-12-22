@@ -6,7 +6,7 @@ const holidaySchema = new Schema({
         required: true
     },
     startDate: {
-        type:Date,
+        type: Date,
         require: true
     },
     endDate: {
@@ -19,10 +19,10 @@ const holidaySchema = new Schema({
     description: {
         type: String,
     },
-    company_id:{
-        type:Schema.Types.ObjectId,
-        ref:"companies",
-        required:true
+    companyId: {
+        type: Schema.Types.ObjectId,
+        ref: "companies",
+        required: true
     }
 },
     {
@@ -34,8 +34,8 @@ const holidaySchema = new Schema({
             virtuals: true,
             versionKey: false,
         }
-})
+    })
 
-const holidayModel=model("holiday",holidaySchema)
+const holidayModel = model("holiday", holidaySchema)
 
-module.exports=holidayModel
+module.exports = holidayModel

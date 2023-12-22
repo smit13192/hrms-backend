@@ -5,7 +5,7 @@ const departmentSchema = new Schema({
         type: String,
         required: true
     },
-    company_id: {
+    companyId: {
         type: Schema.Types.ObjectId,
         ref: "companies",
         required: true,
@@ -19,7 +19,7 @@ const departmentSchema = new Schema({
         virtuals: true,
         versionKey: false,
     },
-})
+});
 
 const DepartmentModel = model("department", departmentSchema);
 
