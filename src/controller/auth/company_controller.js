@@ -124,4 +124,18 @@ async function addEmployee(req, res, next) {
     }
 }
 
-module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, addEmployee };
+async function deleteEmployee(req, res, next) {
+    try {
+        const employeeId = req.params.id;
+        if (!employeeId) {
+            return next(new ApiError(400, "Enter valid employee id"));
+        }
+        const id = req.id;
+        await EmployeeModel.findOneAndDelete({ company: id, _id: req.params.id });
+        res.status(200).json({ success: true, message: "Employee delete successfully" });
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, addEmployee, deleteEmployee };
