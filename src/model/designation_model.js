@@ -4,6 +4,11 @@ const designationSchema = new Schema({
     name: {
         type: String,
         required: true
+    },
+    companyId: {
+        type: Schema.Types.ObjectId,
+        ref: "companies",
+        required: true,
     }
 }, {
     timestamps: true,
@@ -16,6 +21,6 @@ const designationSchema = new Schema({
     },
 });
 
-const designationModel = model("designation", designationSchema);
+const DesignationModel = model("designation", designationSchema);
 
-module.exports = designationModel;
+module.exports = DesignationModel;

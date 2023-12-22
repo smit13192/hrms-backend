@@ -3,6 +3,7 @@ const DepartmentModel = require("../model/department_model")
 
 async function addDepartment(req, res, next) {
     try {
+        req.body.companyId = req.id;
         const department = new DepartmentModel(req.body)
         await department.save()
         res.status(201).json({ success: true, data: department, message: "department added successfully" })
@@ -13,7 +14,7 @@ async function addDepartment(req, res, next) {
 
 async function getDepartment(req, res, next) {
     try {
-        const departments = await DepartmentModel.find({})
+        const departments = await DepartmentModel.find({ companyId: req.id })
         res.status(200).json({ success: true, data: departments })
     } catch (error) {
         return next(new ApiError(400, error.message))
