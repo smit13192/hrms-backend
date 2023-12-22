@@ -4,6 +4,11 @@ const departmentSchema = new Schema({
     name: {
         type: String,
         required: true
+    },
+    company_id: {
+        type: Schema.Types.ObjectId,
+        ref: "companies",
+        required: true,
     }
 }, {
     timestamps: true,
