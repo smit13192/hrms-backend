@@ -45,12 +45,12 @@ const employeeSchema = new Schema({
     },
     departement: {
         type: Schema.Types.ObjectId,
-        ref:"departments",
+        ref: "department",
         required: true,
     },
     designation: {
         type: Schema.Types.ObjectId,
-        ref:"designation",
+        ref: "designation",
         required: true,
     },
     isWorking: {
