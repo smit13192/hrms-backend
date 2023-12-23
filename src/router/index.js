@@ -7,6 +7,7 @@ const designationRouter = require("./designation_route")
 const holidayRouter=require("./holiday_route")
 const projectRouter=require("./project_router")
 const leaveRouter=require("./leave_router")
+const noticeRouter=require("./notice_router")
 
 const router = Router();
 router.use("/company", companyRouter);
@@ -17,5 +18,6 @@ router.use("/designation", designationRouter)
 router.use("/holiday", holidayRouter)
 router.use("/project", projectRouter)
 router.use("/leave", leaveRouter)
+router.use("/notice",noticeRouter)
 
 module.exports = router;
