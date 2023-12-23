@@ -1,28 +1,28 @@
-const {Schema,model}=require("mongoose")
+const { Schema, model } = require("mongoose")
 
-const leaveSchema=new Schema({
-    empId:{
-       type:Schema.Types.ObjectId,
-       require:true
+const leaveSchema = new Schema({
+    empId: {
+        type: Schema.Types.ObjectId,
+        require: true
     },
-    leaveReason:{
-        type:String,
-        require:true
+    leaveReason: {
+        type: String,
+        require: true
     },
-    startDate:{
-        type:Date,
-        require:true
+    startDate: {
+        type: Date,
+        require: true
     },
-    endDate:{
-        type:Date,
-        default:null
+    endDate: {
+        type: Date,
+        default: null
     },
-    status:{
-        type:String,
-        default:"pending",
-        enum:["pending","approved","rejected"]
+    status: {
+        type: String,
+        default: "pending",
+        enum: ["pending", "approved", "rejected"]
     }
-},{
+}, {
     timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {
@@ -33,6 +33,6 @@ const leaveSchema=new Schema({
     }
 })
 
-const leaveModel=model("leave",leaveSchema)
+const LeaveModel = model("leave", leaveSchema)
 
-module.exports=leaveModel
+module.exports = LeaveModel
