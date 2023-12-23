@@ -113,7 +113,7 @@ async function addEmployee(req, res, next) {
         const id = req.id;
         const findEmployee = await EmployeeModel.findOne({ email: req.body.email, company: id });
         if (findEmployee) {
-            return next(new ApiError(400, "Already conatin this email in your company"))
+            return next(new ApiError(400, "Already contain this email in your company"))
         }
         req.body.company = id;
         const employee = new EmployeeModel(req.body);
