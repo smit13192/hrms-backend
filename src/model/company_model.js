@@ -39,6 +39,10 @@ const companySchema = new Schema({
         type: Number,
         required: true,
     },
+    workingHour:{
+        type: Number,
+        required: true,
+    },
     address: {
         type: String,
         required: true,

@@ -7,6 +7,7 @@ const transporter = require("../../utils/transporter");
 const fs = require("fs");
 const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
+const { compare } = require("bcrypt");
 
 async function verifyEmail(req, res, next) {
     try {
@@ -108,6 +109,16 @@ async function deleteCompany(req, res, next) {
     }
 }
 
+async function viewCompany(req,res,next){
+    try {
+        const id=req.id
+        const company=await CompanyModel.findById({_id:id})
+        res.status(200).json({success:true,data:company})
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
 async function addEmployee(req, res, next) {
     try {
         const id = req.id;
@@ -138,4 +149,4 @@ async function deleteEmployee(req, res, next) {
     }
 }
 
-module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, addEmployee, deleteEmployee };
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompany,addEmployee, deleteEmployee };
