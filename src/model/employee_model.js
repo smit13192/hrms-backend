@@ -101,7 +101,7 @@ const employeeSchema = new Schema({
         type: String,
         default: null,
     },
-    emergencyContactNumber: {
+    emergencyPersonName: {
         type: String,
         default: null,
     },

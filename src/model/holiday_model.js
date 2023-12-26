@@ -7,7 +7,7 @@ const holidaySchema = new Schema({
     },
     startDate: {
         type: Date,
-        require: true
+        required: true
     },
     endDate: {
         type: Date,

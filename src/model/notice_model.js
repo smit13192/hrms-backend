@@ -16,7 +16,7 @@ const noticeSchema=new Schema({
     date:{
         type:Date,
         default:Date.now(),
-        require:true
+        required:true
     }
 },{
     timestamps: true,
