@@ -8,6 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
 const { compare } = require("bcrypt");
+const {EMPLOYEE_ROLE}=require("../../config/string")
 
 async function verifyEmail(req, res, next) {
     try {
@@ -109,11 +110,17 @@ async function deleteCompany(req, res, next) {
     }
 }
 
-async function viewCompany(req,res,next){
+async function viewCompanyOrProfile(req,res,next){
     try {
-        const id=req.id
-        const company=await CompanyModel.findById({_id:id})
-        res.status(200).json({success:true,data:company})
+        if(req.role===EMPLOYEE_ROLE){
+            const employee=await EmployeeModel.findById({_id:req.id})
+            res.status(200).json({success:true,data:employee})
+        }
+        else{
+            const id=req.id
+            const company=await CompanyModel.findById({_id:id})
+            res.status(200).json({success:true,data:company})
+        }
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -149,4 +156,4 @@ async function deleteEmployee(req, res, next) {
     }
 }
 
-module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompany,addEmployee, deleteEmployee };
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompanyOrProfile,addEmployee, deleteEmployee };

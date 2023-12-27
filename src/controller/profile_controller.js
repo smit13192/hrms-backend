@@ -30,4 +30,4 @@ async function getProfile(req,res,next){
         return next(new ApiError(400,e.message))
     }
 }
-module.exports={addProfile,getProfile}
+module.exports={addProfile}
