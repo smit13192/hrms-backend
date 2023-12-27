@@ -9,7 +9,8 @@ const projectRouter=require("./project_router")
 const leaveRouter=require("./leave_router")
 const noticeRouter=require("./notice_router")
 const profileRouter=require("./profile_router")
-const userlog=require("./userlog_route")
+const userlogRouter=require("./userlog_route")
+const toggleLogRouter=require("./toggle_log_router")
 
 const router = Router();
 router.use("/company", companyRouter);
@@ -22,6 +23,7 @@ router.use("/project", projectRouter)
 router.use("/leave", leaveRouter)
 router.use("/notice",noticeRouter)
 router.use("/profile",profileRouter)
-router.use("/userlog",userlog)
+router.use("/userlog",userlogRouter)
+router.use("/toggleLog",toggleLogRouter)
 
 module.exports = router;

@@ -34,7 +34,7 @@ async function getLeave(req, res, next) {
 async function updateLeave(req, res, next) {
     try {
         const leave = await LeaveModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
-        res.status(200).json({ success: true, data: leave, message: "leave updates successfully" });
+        res.status(200).json({ success: true, data: leave, message: "leave updated successfully" });
     } catch (e) {
         return next(new ApiError(400, e.message));
     }
