@@ -25,15 +25,6 @@ const userlogSchema = new Schema({
     minutes:{
         type: Number,
         default:null
-    },
-    tags:{
-        type:String,
-        default:null
-    },
-    project:{
-        type: Schema.Types.ObjectId,
-        ref: "projects",
-        default:null
     }
 },{
     timestamps: true,
