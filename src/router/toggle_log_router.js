@@ -2,7 +2,6 @@ const {Router}=require("express")
 const {addToggleLog,getToggleLog,updateToggleLog,deleteToggleLog}=require("../controller/toggle_log_controller")
 const { verifyUser } = require("../middleware/verify_user")
 const { COMPANY_ROLE,EMPLOYEE_ROLE } = require("../config/string")
-const { model } = require("mongoose")
 
 const router=Router()
 

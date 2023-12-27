@@ -19,6 +19,9 @@ const projectSchema = new Schema({
         default: "upcoming",
         enum: ['upcoming', 'complete', 'running']
     },
+    returnDate:{
+        type:Date
+    },
     companyId: {
         type: Schema.Types.ObjectId,
         ref: "companies",

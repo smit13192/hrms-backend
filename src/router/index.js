@@ -11,6 +11,7 @@ const noticeRouter=require("./notice_router")
 const profileRouter=require("./profile_router")
 const userlogRouter=require("./userlog_route")
 const toggleLogRouter=require("./toggle_log_router")
+const teamRouter=require("./team_router")
 
 const router = Router();
 router.use("/company", companyRouter);
@@ -25,5 +26,6 @@ router.use("/notice",noticeRouter)
 router.use("/profile",profileRouter)
 router.use("/userlog",userlogRouter)
 router.use("/toggleLog",toggleLogRouter)
+router.use("/team",teamRouter)
 
 module.exports = router;
