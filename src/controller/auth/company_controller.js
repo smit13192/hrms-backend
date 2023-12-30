@@ -7,8 +7,8 @@ const transporter = require("../../utils/transporter");
 const fs = require("fs");
 const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
-const { compare } = require("bcrypt");
-const {EMPLOYEE_ROLE}=require("../../config/string")
+const { compareHash,hashPassword } = require("../../utils/hash")
+const {EMPLOYEE_ROLE,COMPANY_ROLE}=require("../../config/string")
 
 async function verifyEmail(req, res, next) {
     try {
@@ -156,4 +156,53 @@ async function deleteEmployee(req, res, next) {
     }
 }
 
-module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompanyOrProfile,addEmployee, deleteEmployee };
+async function changePassword(req,res,next){
+    try {
+        debugger
+        const {id,role}=req;
+        let {email,password,newPassword}=req.body
+        if(role===EMPLOYEE_ROLE){
+            const emp=await EmployeeModel.findById(id)
+
+            if (!emp) {
+                return next(new ApiError(404, "Employee not found"));
+            }
+
+            const comparePass = compareHash(password,emp.password);
+            if(emp.email===email && comparePass===true ){
+                newPassword = hashPassword(newPassword);
+                const changePass=await EmployeeModel.findByIdAndUpdate({_id:id},{$set:{password:newPassword}},{new:true})
+                res.status(200).json({success:true,message:"Your password change successfully"})
+            }
+            else{
+                next(new ApiError(403,"details are incorrect"));
+            }
+        }
+        else if(role===COMPANY_ROLE){
+            const company=await CompanyModel.findById(id)
+
+            if (!company) {
+                return next(new ApiError(404, "company not found"));
+            }
+
+            const comparePass = compareHash(password,company.password);
+            if(company.email===email && comparePass===true ){
+                newPassword = hashPassword(newPassword);
+                const changePass=await CompanyModel.findByIdAndUpdate({_id:id},{$set:{password:newPassword}},{new:true})
+                res.status(200).json({success:true,message:"Your password change successfully"})
+            }
+            else{
+                next(new ApiError(403,"details are incorrect"));
+            }
+        }
+        else{
+            next(new ApiError(401,"unauthorized user"));
+        }
+        req.body.email
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
+
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompanyOrProfile,addEmployee, deleteEmployee,changePassword };
