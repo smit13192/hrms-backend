@@ -21,11 +21,11 @@ async function getTeam(req,res,next){
                     {members:req.id},
                     {leader:req.id}
                 ]
-            })
+            }).populate("projectTitle").populate("leader").populate("members")
             res.status(200).json({success:true,data:teams})
         }
         else{
-            const teams=await TeamModel.find({companyId:req.id})
+            const teams=await TeamModel.find({companyId:req.id}).populate("projectTitle").populate("leader").populate("members")
             res.status(200).json({success:true,data:teams})
         }
     } catch (e) {

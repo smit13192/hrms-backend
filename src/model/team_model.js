@@ -8,7 +8,7 @@ const teamSchema=new Schema({
     },
     projectTitle:{
         type:Schema.Types.ObjectId,
-        ref:"projects",
+        ref:"project",
         required:true
     },
     startDate:{

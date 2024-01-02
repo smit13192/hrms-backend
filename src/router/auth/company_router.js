@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { createCompany, verifyEmail, verifyOtp, updateCompany, addEmployee, viewCompanyOrProfile,deleteCompany, deleteEmployee,changePassword } = require("../../controller/auth/company_controller");
+const { createCompany, verifyEmail, verifyOtp, updateCompany, addEmployee, viewCompanyOrProfile,deleteCompany, deleteEmployee,getEmployee,changePassword } = require("../../controller/auth/company_controller");
 const multer = require("../../middleware/multer");
 const { verifyUser } = require("../../middleware/verify_user");
 const { COMPANY_ROLE } = require("../../config/string");
@@ -13,6 +13,7 @@ router.delete("/", verifyUser(COMPANY_ROLE), deleteCompany)
 router.get("/view-company", verifyUser(COMPANY_ROLE), viewCompanyOrProfile)
 router.post("/add-employee", verifyUser(COMPANY_ROLE), addEmployee)
 router.delete("/delete-employee/:id", verifyUser(COMPANY_ROLE), deleteEmployee)
+router.get("/view-employee", verifyUser(COMPANY_ROLE), getEmployee)
 router.post("/changePassword",verifyUser(COMPANY_ROLE),changePassword)
 
 

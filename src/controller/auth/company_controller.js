@@ -156,6 +156,15 @@ async function deleteEmployee(req, res, next) {
     }
 }
 
+async function getEmployee(req,res,next){
+    try {
+        const emps=await EmployeeModel.find({company:req.id}).populate("departement").populate("designation")
+        res.status(200).json({ success: true, data:emps });
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
 async function changePassword(req,res,next){
     try {
         debugger
@@ -205,4 +214,4 @@ async function changePassword(req,res,next){
 }
 
 
-module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompanyOrProfile,addEmployee, deleteEmployee,changePassword };
+module.exports = { verifyEmail, verifyOtp, createCompany, updateCompany, deleteCompany, viewCompanyOrProfile,addEmployee, deleteEmployee,getEmployee,changePassword };
