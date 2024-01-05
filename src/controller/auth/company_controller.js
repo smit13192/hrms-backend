@@ -149,7 +149,7 @@ async function deleteEmployee(req, res, next) {
             return next(new ApiError(400, "Enter valid employee id"));
         }
         const id = req.id;
-        await EmployeeModel.findOneAndDelete({ company: id, _id: req.params.id });
+        await EmployeeModel.findByIdAndUpdate({ company: id, _id: req.params.id },{$set:{isWorking:false}},{new:true});
         res.status(200).json({ success: true, message: "Employee delete successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
@@ -158,7 +158,7 @@ async function deleteEmployee(req, res, next) {
 
 async function getEmployee(req,res,next){
     try {
-        const emps=await EmployeeModel.find({company:req.id}).populate("departement").populate("designation")
+        const emps=await EmployeeModel.find({company:req.id}).populate("department").populate("designation")
         res.status(200).json({ success: true, data:emps });
     } catch (e) {
         next(new ApiError(400, e.message));
