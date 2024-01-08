@@ -1,9 +1,16 @@
 const ApiError = require("../utils/error")
 const DepartmentModel = require("../model/department_model")
+const {departmentValidation}=require("../config/joi.validation")
 
 async function addDepartment(req, res, next) {
     try {
         req.body.companyId = req.id;
+
+        const departValidation=departmentValidation.validate(req.body)
+        if(departValidation.error){
+            return next(new ApiError(403,departValidation.error.details[0].message))
+        }
+
         const department = new DepartmentModel(req.body)
         await department.save()
         res.status(201).json({ success: true, data: department, message: "department added successfully" })

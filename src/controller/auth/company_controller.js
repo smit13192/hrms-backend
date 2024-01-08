@@ -9,8 +9,9 @@ const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
 const { compareHash,hashPassword } = require("../../utils/hash")
 const {EMPLOYEE_ROLE,COMPANY_ROLE}=require("../../config/string")
-const {createCompanyValidation}=require("../../config/joi.validation");
+const {createCompanyValidation,employeeValidation}=require("../../config/joi.validation");
 const { error } = require("console");
+
 
 async function verifyEmail(req, res, next) {
     try {
@@ -125,7 +126,7 @@ async function viewCompanyOrProfile(req,res,next){
         }
         else{
             const id=req.id
-            const company=await CompanyModel.findById({_id:id})
+            const company=await CompanyModel.findById({_id:id}).populate("workCategory")
             res.status(200).json({success:true,data:company})
         }
     } catch (e) {
@@ -141,6 +142,12 @@ async function addEmployee(req, res, next) {
             return next(new ApiError(400, "Already contain this email in your company"))
         }
         req.body.company = id;
+        
+        const empValid=employeeValidation.validate(req.body)
+        if(empValid.error){
+            return next(new ApiError(403,empValid.error.details[0].message))
+        }
+
         const employee = new EmployeeModel(req.body);
         await employee.save();
         res.status(201).json({ success: true, message: "Employee added successfully" });
@@ -174,7 +181,6 @@ async function getEmployee(req,res,next){
 
 async function changePassword(req,res,next){
     try {
-        debugger
         const {id,role}=req;
         let {email,password,newPassword}=req.body
         if(role===EMPLOYEE_ROLE){

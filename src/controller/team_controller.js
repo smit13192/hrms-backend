@@ -1,10 +1,17 @@
 const ApiError = require("../utils/error")
 const TeamModel=require("../model/team_model")
 const { EMPLOYEE_ROLE } = require("../config/string");
+const {teamValidation}=require("../config/joi.validation")
 
 async function addTeam(req,res,next){
     try {
         req.body.companyId=req.id
+
+        const teamValid=teamValidation.validate(req.body)
+        if(teamValid.error){
+            return next(new ApiError(403,teamValid.error.details[0].message))
+        }
+
         const team=new TeamModel(req.body)
         await team.save()
         res.status(201).json({success:true,data:team,message:"team created successfully"})

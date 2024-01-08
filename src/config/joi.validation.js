@@ -29,4 +29,100 @@ const createCompanyValidation=Joi.object().keys({
     publicId: Joi.string()
 })
 
-module.exports={createCompanyValidation}
+const employeeValidation=Joi.object().keys({
+    company: Joi.string().required(),
+    firstName: Joi.string().required(),
+    middleName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    profilePic: Joi.string().allow(null),
+    publicId: Joi.string().allow(null),
+    mobileNo: Joi.number().required(),
+    gender: Joi.string().required(),
+    department: Joi.string().required(),
+    designation: Joi.string().required(),
+    isWorking: Joi.boolean().default(true),
+    doj: Joi.date().required(),
+    dob: Joi.date().allow(null),
+    dol: Joi.date().allow(null),
+    fatherName: Joi.string().allow(null),
+    motherName: Joi.string().allow(null),
+    address: Joi.string().allow(null),
+    city: Joi.string().allow(null),
+    state: Joi.string().allow(null),
+    country: Joi.string().allow(null),
+    pincode: Joi.string().allow(null),
+    adharCardNumber: Joi.string().allow(null),
+    emergencyPersonName: Joi.string().allow(null),
+    emergencyPersonContactNumber: Joi.string().allow(null),
+    bankName: Joi.string().allow(null),
+    acHolderName: Joi.string().allow(null),
+    acNumber: Joi.string().allow(null),
+    ifscCode: Joi.string().allow(null)
+});
+
+const departmentValidation=Joi.object().keys({
+    name:Joi.string().required(),
+    companyId:Joi.string().required(),
+})
+
+const designationValidation=Joi.object().keys({
+    name:Joi.string().required(),
+    companyId:Joi.string().required()
+})
+
+const holidayValidation = Joi.object().keys({
+    title: Joi.string().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().allow(null),
+    holidayType: Joi.string().required(),
+    description: Joi.string().allow(null),
+    companyId: Joi.string().required()
+});
+
+const leaveValidation = Joi.object().keys({
+    empId: Joi.string().required(),
+    leaveReason: Joi.string().required(),
+    startDate: Joi.date().required(),
+    endDate: Joi.date().allow(null),
+    status: Joi.string().valid('pending', 'approved', 'rejected').default('pending')
+});
+
+const noticeValidation = Joi.object().keys({
+    companyId: Joi.string().required(), 
+    title: Joi.string().required(),
+    description: Joi.string().required(),
+    date: Joi.date().default(Date.now())
+});
+
+const projectValidation = Joi.object().keys({
+    projectTitle: Joi.string().required(),
+    description: Joi.string().required(),
+    clientName: Joi.string().required(),
+    status: Joi.string().valid('upcoming', 'complete', 'running').default('upcoming'),
+    returnDate: Joi.date().allow(null),
+    companyId: Joi.string().required()
+});
+
+const teamValidation = Joi.object({
+    companyId: Joi.string().required(), 
+    projectTitle: Joi.string().required(), 
+    startDate: Joi.date().allow(null),
+    endDate: Joi.date().allow(null),
+    days: Joi.number().integer().min(0),
+    leader: Joi.string().required(),
+    members: Joi.array().items(Joi.string().required()).required() 
+});
+
+module.exports={
+    createCompanyValidation,
+    employeeValidation,
+    departmentValidation,
+    designationValidation,
+    holidayValidation,
+    leaveValidation,
+    noticeValidation,
+    projectValidation,
+    teamValidation
+}

@@ -1,9 +1,16 @@
 const ApiError = require("../utils/error")
 const ProjectModel = require("../model/project_model")
+const {projectValidation}=require("../config/joi.validation")
 
 async function addProject(req, res, next) {
     try {
         req.body.companyId = req.id;
+
+        const proValid=projectValidation.validate(req.body)
+        if(proValid.error){
+            return next(new ApiError(403,proValid.error.details[0].message))
+        }
+
         const project = new ProjectModel(req.body);
         await project.save();
         res.status(201).json({ success: true, data: project, message: "project details added successfully" });

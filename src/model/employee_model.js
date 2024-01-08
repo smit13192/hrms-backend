@@ -36,7 +36,7 @@ const employeeSchema = new Schema({
         default: null,
     },
     mobileNo: {
-        type: String,
+        type: Number,
         required: true,
     },
     gender: {

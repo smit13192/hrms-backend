@@ -1,9 +1,16 @@
 const ApiError = require("../utils/error")
 const DesignationModel = require("../model/designation_model")
+const {designationValidation}=require("../config/joi.validation")
 
 async function addDesignation(req, res, next) {
-    try {
+    try {debugger
         req.body.companyId = req.id
+
+        const desigValidation=designationValidation.validate(req.body)
+        if(desigValidation.error){
+            return next(new ApiError(403,desigValidation.error.details[0].message))
+        }
+        
         const designation = new DesignationModel(req.body)
         await designation.save()
         res.status(201).json({ success: true, data: designation, message: "designation added successfully" })
