@@ -17,7 +17,7 @@ async function addProfile(req,res,next){
         const profile=await EmployeeModel.findByIdAndUpdate({_id:id},{$set:req.body},{new:true})
         res.status(200).json({success:true,data:profile,message:"profile details added successfully"})
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -27,7 +27,7 @@ async function getProfile(req,res,next){
         const profile=await EmployeeModel.findById({_id:id})
         res.status(200).json({success:true,data:profile})
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 module.exports={addProfile}

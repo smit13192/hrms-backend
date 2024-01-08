@@ -18,6 +18,7 @@ const workCategorySchema = new Schema({
     }
 );
 
+
 const WorkCategoryModel = model("work-categories", workCategorySchema);
 
 module.exports = WorkCategoryModel;

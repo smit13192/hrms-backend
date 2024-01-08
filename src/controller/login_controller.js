@@ -35,7 +35,7 @@ async function login(req, res, next) {
             }
         }
     } catch (error) {
-        return next(new ApiError(400, error.message))
+         next(new ApiError(400, error.message))
     }
 }
 

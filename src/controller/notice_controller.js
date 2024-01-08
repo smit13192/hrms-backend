@@ -10,7 +10,7 @@ async function addNotice(req,res,next){
         await notice.save()
         res.status(201).json({success:true,data:notice,message:"notice added successfully"})
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -23,7 +23,7 @@ async function getNotice(req,res,next){
         const notice = await noticeModel.find({ companyId });
         res.status(200).json({ success: true, date: notice });
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -32,7 +32,7 @@ async function updateNotice(req,res,next){
         const notice = await noticeModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true })
         res.status(200).json({ success: true, data: notice, message: "notice update sucessfully" })
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -41,7 +41,7 @@ async function deleteNotice(req, res, next) {
         await noticeModel.findByIdAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "notice delete sucessfully" })
     } catch (error) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 

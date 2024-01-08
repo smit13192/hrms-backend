@@ -9,6 +9,8 @@ const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
 const { compareHash,hashPassword } = require("../../utils/hash")
 const {EMPLOYEE_ROLE,COMPANY_ROLE}=require("../../config/string")
+const {createCompanyValidation}=require("../../config/joi.validation");
+const { error } = require("console");
 
 async function verifyEmail(req, res, next) {
     try {
@@ -57,6 +59,11 @@ async function verifyOtp(req, res, next) {
 
 async function createCompany(req, res, next) {
     try {
+        const companyValidation=createCompanyValidation.validate(req.body)
+        if(companyValidation.error){
+            return next(new ApiError(403,companyValidation.error.details[0].message))
+        }
+
         const { email } = req.body;
         const findCompany = await CompanyModel.findOne({ email });
         if (findCompany) {

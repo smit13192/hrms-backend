@@ -9,7 +9,7 @@ async function addTeam(req,res,next){
         await team.save()
         res.status(201).json({success:true,data:team,message:"team created successfully"})
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -29,7 +29,7 @@ async function getTeam(req,res,next){
             res.status(200).json({success:true,data:teams})
         }
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -38,7 +38,7 @@ async function updateTeam(req,res,next){
         const team = await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
         res.status(200).json({ success: true, data: team, message: "team details  updated successfully" });
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 
@@ -47,7 +47,7 @@ async function deleteTeam(req,res,next){
         await TeamModel.findByIdAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "team delete sucessfully" })
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 

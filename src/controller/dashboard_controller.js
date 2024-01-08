@@ -25,7 +25,7 @@ async function dashboard(req,res,next){
         res.status(200).json({success:true,numberOfPresentEmp,numberOfAbsentEmp,numberOfProjects})
 
     } catch (e) {
-        return next(new ApiError(400,e.message))
+         next(new ApiError(400,e.message))
     }
 }
 

@@ -10,7 +10,7 @@ async function addLeave(req, res, next) {
         await leave.save();
         res.status(201).json({ success: true, data: leave, message: "leave added successfully" });
     } catch (e) {
-        return next(new ApiError(400, e.message));
+         next(new ApiError(400, e.message));
     }
 }
 
@@ -27,7 +27,7 @@ async function getLeave(req, res, next) {
             res.status(200).json({ success: true, data: leaves });
         }
     } catch (e) {
-        return next(new ApiError(400, e.message));
+         next(new ApiError(400, e.message));
     }
 }
 
@@ -36,7 +36,7 @@ async function updateLeave(req, res, next) {
         const leave = await LeaveModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
         res.status(200).json({ success: true, data: leave, message: "leave updated successfully" });
     } catch (e) {
-        return next(new ApiError(400, e.message));
+         next(new ApiError(400, e.message));
     }
 }
 
@@ -52,7 +52,7 @@ async function deleteLeave(req, res, next) {
             return next(new ApiError(403, "you are not able to delete leaves"));
         }
     } catch (e) {
-        return next(new ApiError(400, e.message));
+         next(new ApiError(400, e.message));
     }
 }
 
