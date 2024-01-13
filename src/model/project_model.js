@@ -20,12 +20,17 @@ const projectSchema = new Schema({
         enum: ['upcoming', 'complete', 'running']
     },
     returnDate:{
-        type:Date
+        type:Date,
+        default:"null"
     },
     companyId: {
         type: Schema.Types.ObjectId,
         ref: "companies",
         required: true
+    },
+    isWorking:{
+        type:Boolean,
+        default:true
     }
 }, {
     timestamps: true,

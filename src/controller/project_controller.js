@@ -22,7 +22,8 @@ async function addProject(req, res, next) {
 async function getProject(req, res, next) {
     try {
         const projects = await ProjectModel.find({ companyId: req.id });
-        res.status(200).json({ success: true, data: projects });
+        const workingProject=projects.filter((data)=>data.isWorking==true)
+        res.status(200).json({ success: true, data: workingProject });
     } catch (e) {
          next(new ApiError(400, e.message));
     }
@@ -39,7 +40,8 @@ async function updateProject(req, res, next) {
 
 async function deleteProject(req, res, next) {
     try {
-        await ProjectModel.findByIdAndDelete({ _id: req.params.id });
+        debugger
+        await ProjectModel.findByIdAndUpdate({ _id: req.params.id },{$set:{isWorking:false}},{new:true});
         res.status(200).json({ success: true, message: "project delete sucessfully" });
     } catch (error) {
          next(new ApiError(400, e.message));

@@ -29,11 +29,14 @@ async function getTeam(req,res,next){
                     {leader:req.id}
                 ]
             }).populate("projectTitle").populate("leader").populate("members")
-            res.status(200).json({success:true,data:teams})
+
+            const workingTeam=teams.filter((data)=>data.isWorking===true)
+            res.status(200).json({success:true,data:workingTeam})
         }
         else{
             const teams=await TeamModel.find({companyId:req.id}).populate("projectTitle").populate("leader").populate("members")
-            res.status(200).json({success:true,data:teams})
+            const workingTeam=teams.filter((data)=>data.isWorking===true)
+            res.status(200).json({success:true,data:workingTeam})
         }
     } catch (e) {
          next(new ApiError(400,e.message))
@@ -51,7 +54,7 @@ async function updateTeam(req,res,next){
 
 async function deleteTeam(req,res,next){
     try {
-        await TeamModel.findByIdAndDelete({ _id: req.params.id })
+        await TeamModel.findByIdAndUpdate({ _id: req.params.id },{$set:{isWorking:false}},{new:true})
         res.status(200).json({ success: true, message: "team delete sucessfully" })
     } catch (e) {
          next(new ApiError(400,e.message))

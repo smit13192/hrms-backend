@@ -12,13 +12,12 @@ const teamSchema=new Schema({
         required:true
     },
     startDate:{
-        type:Date
+        type:Date,
+        require:true
     },
-    endtDate:{
-        type:Date
-    },
-    days:{
-        type:Number,
+    endDate:{
+        type:Date,
+        default:null
     },
     leader:{
         type:Schema.Types.ObjectId,
@@ -29,7 +28,11 @@ const teamSchema=new Schema({
         type:Schema.Types.ObjectId,
         ref:"employees",
         required:true
-    }]
+    }],
+    isWorking:{
+        type:Boolean,
+        default:true
+    }
 },{
     timestamps: true,
     toJSON: {
