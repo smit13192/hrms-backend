@@ -13,22 +13,33 @@ function verifyUser(role) {
                 return next(new ApiError(401, "Unauthorized user"));
             }
             const data = verifyToken(token);
+
+            if (!data || !data.valid) {
+                if (data.expired) {
+                    return next(new ApiError(401, "Token expired")); // Handle expired token
+                } else {
+                    return next(new ApiError(401, "Invalid token"));
+                }
+            }
+
+            const { decoded } = data;
             if (typeof role === "string") {
-                if (data.role === role) {
-                    req.id = data._id;
-                    req.role = data.role;
+                if (decoded.role === role) {
+                    req.id = decoded._id;
+                    req.role = decoded.role;
                     return next();
                 }
             } else {
-                if (role.includes(data.role)) {
-                    req.id = data._id;
-                    req.role = data.role;
+                if (role.includes(decoded.role)) {
+                    req.id = decoded._id;
+                    req.role = decoded.role;
                     return next();
                 }
             }
-            return next(new ApiError(401, "Unauthorized user"));
+
+            return next(new ApiError(401, "Role mismatch"));
         } catch (e) {
-            return next(new ApiError(401, "Unauthorized user"));
+            return next(new ApiError(400,e.message));
         }
     }
 }

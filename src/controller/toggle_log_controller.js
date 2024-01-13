@@ -10,7 +10,7 @@ async function addToggleLog(req, res, next) {
         await toggle.save()
         res.status(201).json({ success: true, data: toggle, message: "toggle log added successfully" })
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -27,7 +27,7 @@ async function getToggleLog(req, res, next) {
             res.status(200).json({ success: true, data: toggles })
         }
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -36,7 +36,7 @@ async function updateToggleLog(req, res, next) {
         const toggle = await ToggleLogModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { newmm: true })
         res.status(200).json({ success: true, data: toggle, message: "toggle updated successfully" })
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -45,7 +45,7 @@ async function deleteToggleLog(req, res, next) {
         const toggle = await ToggleLogModel.findByIdAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "toggle deleted successfully" })
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 

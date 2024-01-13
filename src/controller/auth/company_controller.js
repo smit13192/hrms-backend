@@ -9,6 +9,9 @@ const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
 const { compareHash,hashPassword } = require("../../utils/hash")
 const {EMPLOYEE_ROLE,COMPANY_ROLE}=require("../../config/string")
+const {createCompanyValidation,employeeValidation}=require("../../config/joi.validation");
+const { error } = require("console");
+
 
 async function verifyEmail(req, res, next) {
     try {
@@ -57,6 +60,11 @@ async function verifyOtp(req, res, next) {
 
 async function createCompany(req, res, next) {
     try {
+        const companyValidation=createCompanyValidation.validate(req.body)
+        if(companyValidation.error){
+            return next(new ApiError(403,companyValidation.error.details[0].message))
+        }
+
         const { email } = req.body;
         const findCompany = await CompanyModel.findOne({ email });
         if (findCompany) {
@@ -118,7 +126,7 @@ async function viewCompanyOrProfile(req,res,next){
         }
         else{
             const id=req.id
-            const company=await CompanyModel.findById({_id:id}).populate("workCategory");
+            const company=await CompanyModel.findById({_id:id}).populate("workCategory")
             res.status(200).json({success:true,data:company})
         }
     } catch (e) {
@@ -134,6 +142,12 @@ async function addEmployee(req, res, next) {
             return next(new ApiError(400, "Already contain this email in your company"))
         }
         req.body.company = id;
+        
+        const empValid=employeeValidation.validate(req.body)
+        if(empValid.error){
+            return next(new ApiError(403,empValid.error.details[0].message))
+        }
+
         const employee = new EmployeeModel(req.body);
         await employee.save();
         res.status(201).json({ success: true, message: "Employee added successfully" });
@@ -149,7 +163,7 @@ async function deleteEmployee(req, res, next) {
             return next(new ApiError(400, "Enter valid employee id"));
         }
         const id = req.id;
-        await EmployeeModel.findOneAndDelete({ company: id, _id: req.params.id });
+        await EmployeeModel.findByIdAndUpdate({ company: id, _id: req.params.id },{$set:{isWorking:false}},{new:true});
         res.status(200).json({ success: true, message: "Employee delete successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
@@ -158,8 +172,11 @@ async function deleteEmployee(req, res, next) {
 
 async function getEmployee(req,res,next){
     try {
-        const emps=await EmployeeModel.find({company:req.id}).populate("department").populate("designation");
-        res.status(200).json({ success: true, data:emps });
+        debugger
+        const emps=await EmployeeModel.find({company:req.id}).populate("department").populate("designation")
+
+        const workingEmployees = emps.filter((data) => data.isWorking === true);
+        res.status(200).json({ success: true, data: workingEmployees });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -167,7 +184,6 @@ async function getEmployee(req,res,next){
 
 async function changePassword(req,res,next){
     try {
-        debugger
         const {id,role}=req;
         let {email,password,newPassword}=req.body
         if(role===EMPLOYEE_ROLE){

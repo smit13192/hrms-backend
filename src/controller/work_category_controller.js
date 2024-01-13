@@ -7,7 +7,7 @@ async function addWorkCategory(req, res, next) {
         await workCategory.save();
         res.status(201).json({ success: true, data: workCategory, message: "work category added successfully" });
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -16,7 +16,7 @@ async function getWorkCategory(_req, res, next) {
         const workCategories = await WorkCategoryModel.find({});
         res.status(200).json({ success: true, data: workCategories });
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -25,7 +25,7 @@ async function updateWorkCategory(req, res, next) {
         const workCategory = await WorkCategoryModel.findOneAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
         res.status(200).json({ success: true, data: workCategory, message: "work category update successfully" });
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -34,7 +34,7 @@ async function deleteWorkCategory(req, res, next) {
         await WorkCategoryModel.findOneAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "work category delete successfully" });
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 

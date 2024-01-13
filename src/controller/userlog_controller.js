@@ -10,7 +10,7 @@ async function checkIn(req, res, next) {
         await checkIn.save()
         res.status(201).json({ success: true, message: "checkIn log added suggesfully" })
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -32,7 +32,7 @@ async function checkOut(req, res, next) {
 
         res.status(201).json({ success: true, message: "checkOut log added suggesfully" })
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
@@ -50,7 +50,7 @@ async function getUserlog(req, res, next) {
         }
 
     } catch (e) {
-        return next(new ApiError(400, e.message))
+         next(new ApiError(400, e.message))
     }
 }
 
