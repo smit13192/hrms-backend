@@ -64,15 +64,13 @@ const companySchema = new Schema({
         required: true,
     },
     pincode: {
-        type: String,
+        type: Number,
         required: true,
     },
     workCategory: {
-        type: [{
             type: Schema.Types.ObjectId,
-            ref: "work-categories"
-        }],
-        default: [],
+            ref: "work-categories",
+            require:true
     },
     publicId: {
         type: String,

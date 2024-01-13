@@ -118,7 +118,7 @@ async function viewCompanyOrProfile(req,res,next){
         }
         else{
             const id=req.id
-            const company=await CompanyModel.findById({_id:id})
+            const company=await CompanyModel.findById({_id:id}).populate("workCategory");
             res.status(200).json({success:true,data:company})
         }
     } catch (e) {
@@ -158,7 +158,7 @@ async function deleteEmployee(req, res, next) {
 
 async function getEmployee(req,res,next){
     try {
-        const emps=await EmployeeModel.find({company:req.id}).populate("departement").populate("designation")
+        const emps=await EmployeeModel.find({company:req.id}).populate("department").populate("designation");
         res.status(200).json({ success: true, data:emps });
     } catch (e) {
         next(new ApiError(400, e.message));
