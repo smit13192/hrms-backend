@@ -18,9 +18,8 @@ async function checkIn(req, res, next) {
 
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
         if (findCurrentDateUserlog) {
-            return res.status(400).json({ success: false, message: "You can't second time add your log" });
+            return next(new ApiError(400, "You already start your timer"));
         }
-
         const checkIn = new UserlogModel(req.body)
         await checkIn.save()
         res.status(201).json({ success: true, message: "checkIn log added suggesfully" })
@@ -41,10 +40,26 @@ async function checkOut(req, res, next) {
         const currentDateWithoutTime = new Date(year, month, day);
 
         const userlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
+        if (!userlog) {
+            return next(new ApiError(400, "Start timer first"));
+        }
+        if (userlog.checkOut !== null) {
+            return res.status(200).json({
+                success: true,
+                data: {
+                    checkingTime: userlog.checkIn,
+                    checkoutTime: userlog.checkOut,
+                    hours: userlog.hours,
+                    minutes: userlog.minutes,
+                    time: Math.floor((userlog.checkOut - userlog.checkIn) / 1000),
+                },
+                message: "checkOut log added successfully",
+            });
+        }
         userlog.checkOut = currentDate;
-        const durationInMillis = userlog.checkOut - userlog.checkIn;
-        userlog.hours = Math.floor(durationInMillis / (1000 * 60 * 60));
-        userlog.minutes = Math.floor((durationInMillis % (1000 * 60 * 60)) / (1000 * 60));
+        const durationInSeconds = Math.floor((userlog.checkOut - userlog.checkIn) / 1000);
+        userlog.hours = Math.floor(durationInSeconds / (60 * 60));
+        userlog.minutes = Math.floor((durationInSeconds % (60 * 60)) / (60));
         await userlog.save();
 
         res
@@ -56,9 +71,9 @@ async function checkOut(req, res, next) {
                     checkoutTime: userlog.checkOut,
                     hours: userlog.hours,
                     minutes: userlog.minutes,
-                    time: durationInMillis,
+                    time: durationInSeconds,
                 },
-                message: "checkOut log added suggesfully"
+                message: "checkOut log added successfully"
             });
     } catch (e) {
         next(new ApiError(400, e.message))
@@ -79,7 +94,7 @@ async function getTime(req, res, next) {
 
         const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
         if (findUserLog) {
-            if (findUserLog.checkOut == null) {
+            if (findUserLog.checkOut === null) {
                 time = Math.floor((currentDate - findUserLog.checkIn) / 1000)
             } else {
                 return res.
@@ -89,21 +104,32 @@ async function getTime(req, res, next) {
                         data: {
                             time: Math.floor((findUserLog.checkOut - findUserLog.checkIn) / 1000),
                             checkingTime: findUserLog.checkIn.toISOString(),
-                            currentTime: currentDate.toISOString()
+                            checkoutTime: findUserLog.checkOut.toISOString()
                         }
                     });
             }
+            return res.
+                status(200).
+                json({
+                    success: true,
+                    data: {
+                        time: time,
+                        checkingTime: findUserLog.checkIn.toISOString(),
+                        checkoutTime: findUserLog.checkOut
+                    }
+                });
+        } else {
+            return res.
+                status(200).
+                json({
+                    success: true,
+                    data: {
+                        time: time,
+                        checkingTime: null,
+                        checkoutTime: null
+                    }
+                });
         }
-        res.
-            status(200).
-            json({
-                success: true,
-                data: {
-                    time: time,
-                    checkingTime: findUserLog.checkIn.toISOString(),
-                    currentTime: currentDate.toISOString()
-                }
-            });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
