@@ -19,18 +19,18 @@ const projectSchema = new Schema({
         default: "upcoming",
         enum: ['upcoming', 'complete', 'running']
     },
-    returnDate:{
-        type:Date,
-        default:"null"
+    returnDate: {
+        type: Date,
+        default: "null"
     },
     companyId: {
         type: Schema.Types.ObjectId,
         ref: "companies",
         required: true
     },
-    isWorking:{
-        type:Boolean,
-        default:true
+    isWorking: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true,

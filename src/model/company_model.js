@@ -39,7 +39,7 @@ const companySchema = new Schema({
         type: Number,
         required: true,
     },
-    workingHour:{
+    workingHour: {
         type: Number,
         required: true,
     },
@@ -108,7 +108,7 @@ companySchema.pre("findOneAndDelete", async function (next) {
 
 companySchema.pre("findOneAndUpdate", async function (next) {
     const update = this._update;
-    if(update.$set.publicId) {
+    if (update.$set.publicId) {
         const previousDocument = await this.model.findOne(this.getQuery());
         await cloudinary.uploader.destroy(previousDocument.publicId);
     }

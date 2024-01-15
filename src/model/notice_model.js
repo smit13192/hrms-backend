@@ -1,24 +1,24 @@
-const {Schema,model, SchemaType}=require("mongoose")
+const { Schema, model, SchemaType } = require("mongoose")
 
-const noticeSchema=new Schema({
-    companyId:{
-        type:Schema.Types.ObjectId,
-        ref:"companies"
+const noticeSchema = new Schema({
+    companyId: {
+        type: Schema.Types.ObjectId,
+        ref: "companies"
     },
-    title:{
-        type:String,
-        required:true
+    title: {
+        type: String,
+        required: true
     },
-    description:{
-        type:String,
-        required:true
+    description: {
+        type: String,
+        required: true
     },
-    date:{
-        type:Date,
-        default:Date.now(),
-        required:true
+    date: {
+        type: Date,
+        default: Date.now(),
+        required: true
     }
-},{
+}, {
     timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {
@@ -29,6 +29,6 @@ const noticeSchema=new Schema({
     }
 })
 
-const noticeModel=model("notice",noticeSchema)
+const NoticeModel = model("notice", noticeSchema)
 
-module.exports=noticeModel
+module.exports = NoticeModel

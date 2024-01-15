@@ -2,17 +2,17 @@ const Joi = require("joi");
 const { joiPasswordExtendCore } = require('joi-password');
 const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
-const createCompanyValidation=Joi.object().keys({
+const createCompanyValidation = Joi.object().keys({
     logo: Joi.string(),
     email: Joi.string().email().required(),
     password: JoiPassword.string()
-    .min(6)
-    .minOfSpecialCharacters(1)
-    .minOfLowercase(1)
-    .minOfUppercase(1)
-    .minOfNumeric(1)
-    .noWhiteSpaces()
-    .required(),
+        .min(6)
+        .minOfSpecialCharacters(1)
+        .minOfLowercase(1)
+        .minOfUppercase(1)
+        .minOfNumeric(1)
+        .noWhiteSpaces()
+        .required(),
     name: Joi.string().required(),
     founder: Joi.string().required(),
     startDate: Joi.date().required(),
@@ -29,7 +29,7 @@ const createCompanyValidation=Joi.object().keys({
     publicId: Joi.string()
 })
 
-const employeeValidation=Joi.object().keys({
+const employeeValidation = Joi.object().keys({
     company: Joi.string().required(),
     firstName: Joi.string().required(),
     middleName: Joi.string().required(),
@@ -62,14 +62,14 @@ const employeeValidation=Joi.object().keys({
     ifscCode: Joi.string().allow(null)
 });
 
-const departmentValidation=Joi.object().keys({
-    name:Joi.string().required(),
-    companyId:Joi.string().required(),
+const departmentValidation = Joi.object().keys({
+    name: Joi.string().required(),
+    companyId: Joi.string().required(),
 })
 
-const designationValidation=Joi.object().keys({
-    name:Joi.string().required(),
-    companyId:Joi.string().required()
+const designationValidation = Joi.object().keys({
+    name: Joi.string().required(),
+    companyId: Joi.string().required()
 })
 
 const holidayValidation = Joi.object().keys({
@@ -90,7 +90,7 @@ const leaveValidation = Joi.object().keys({
 });
 
 const noticeValidation = Joi.object().keys({
-    companyId: Joi.string().required(), 
+    companyId: Joi.string().required(),
     title: Joi.string().required(),
     description: Joi.string().required(),
     date: Joi.date().default(Date.now())
@@ -106,16 +106,16 @@ const projectValidation = Joi.object().keys({
 });
 
 const teamValidation = Joi.object({
-    companyId: Joi.string().required(), 
-    projectTitle: Joi.string().required(), 
+    companyId: Joi.string().required(),
+    projectTitle: Joi.string().required(),
     startDate: Joi.date().allow(null),
     endDate: Joi.date().allow(null),
     days: Joi.number().integer().min(0),
     leader: Joi.string().required(),
-    members: Joi.array().items(Joi.string().required()).required() 
+    members: Joi.array().items(Joi.string().required()).required()
 });
 
-module.exports={
+module.exports = {
     createCompanyValidation,
     employeeValidation,
     departmentValidation,
