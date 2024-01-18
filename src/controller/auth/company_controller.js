@@ -89,6 +89,7 @@ async function createCompany(req, res, next) {
 
 async function updateCompany(req, res, next) {
     try {
+        debugger
         delete req.body.email;
         delete req.body.password;
         const id = req.id;

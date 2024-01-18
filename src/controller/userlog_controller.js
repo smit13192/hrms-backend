@@ -22,7 +22,7 @@ async function checkIn(req, res, next) {
         }
         const checkIn = new UserlogModel(req.body)
         await checkIn.save()
-        res.status(201).json({ success: true, message: "checkIn log added suggesfully" })
+        res.status(201).json({ success: true, message: "checkIn log added successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
