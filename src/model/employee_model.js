@@ -13,7 +13,6 @@ const employeeSchema = new Schema({
     },
     middleName: {
         type: String,
-        required: true,
     },
     lastName: {
         type: String,

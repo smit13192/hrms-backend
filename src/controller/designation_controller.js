@@ -1,21 +1,22 @@
 const ApiError = require("../utils/error")
 const DesignationModel = require("../model/designation_model")
-const {designationValidation}=require("../config/joi.validation")
+const { designationValidation } = require("../config/joi.validation")
 
 async function addDesignation(req, res, next) {
-    try {debugger
+    try {
+        debugger
         req.body.companyId = req.id
 
-        const desigValidation=designationValidation.validate(req.body)
-        if(desigValidation.error){
-            return next(new ApiError(403,desigValidation.error.details[0].message))
+        const desigValidation = designationValidation.validate(req.body)
+        if (desigValidation.error) {
+            return next(new ApiError(403, desigValidation.error.details[0].message))
         }
-        
+
         const designation = new DesignationModel(req.body)
         await designation.save()
         res.status(201).json({ success: true, data: designation, message: "designation added successfully" })
     } catch (error) {
-         next(new ApiError(400, error.message))
+        next(new ApiError(400, error.message))
     }
 }
 
@@ -24,7 +25,7 @@ async function getDesignation(req, res, next) {
         const designations = await DesignationModel.find({ companyId: req.id })
         res.status(200).json({ success: true, data: designations })
     } catch (error) {
-         next(new ApiError(400, error.message))
+        next(new ApiError(400, error.message))
     }
 }
 
@@ -33,7 +34,7 @@ async function updateDesignation(req, res, next) {
         const designation = await DesignationModel.findByIdAndUpdate({ _id: req.params.id }, { $set: { name: req.body.name } }, { new: true })
         res.status(200).json({ success: true, data: designation, message: "update designation succesfully" })
     } catch (error) {
-         next(new ApiError(400, error.message))
+        next(new ApiError(400, error.message))
     }
 }
 
@@ -42,7 +43,7 @@ async function deleteDesignation(req, res, next) {
         await DesignationModel.findByIdAndDelete({ _id: req.params.id })
         res.status(200).json({ success: true, message: "designation delete successfully" });
     } catch (error) {
-         next(new ApiError(400, error.message))
+        next(new ApiError(400, error.message))
     }
 }
 

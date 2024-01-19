@@ -16,17 +16,17 @@ const userlogSchema = new Schema({
     },
     checkOut: {
         type: Date,
-        default:null
+        default: null
     },
     hours: {
         type: Number,
-        default:null
+        default: null
     },
-    minutes:{
+    minutes: {
         type: Number,
-        default:null
+        default: null
     }
-},{
+}, {
     timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {

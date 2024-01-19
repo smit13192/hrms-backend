@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose")
 const leaveSchema = new Schema({
     empId: {
         type: Schema.Types.ObjectId,
-        ref:"employees",
+        ref: "employees",
         required: true
     },
     leaveReason: {

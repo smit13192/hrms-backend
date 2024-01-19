@@ -1,21 +1,21 @@
 const { Schema, model } = require("mongoose")
 
-const toggleLogSchema=new Schema({
+const toggleLogSchema = new Schema({
     empId: {
         type: Schema.Types.ObjectId,
         ref: "employees",
         required: true
     },
-    updateMessage:{
-        type:String,
-        required:true
+    updateMessage: {
+        type: String,
+        required: true
     },
-    project:{
+    project: {
         type: Schema.Types.ObjectId,
         ref: "projects",
     },
-    tags:{
-        type:String,
+    tags: {
+        type: String,
     },
     date: {
         type: Date,
@@ -27,9 +27,9 @@ const toggleLogSchema=new Schema({
     },
     endTime: {
         type: Date,
-        default:null
+        default: null
     }
-},{
+}, {
     timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {
@@ -40,6 +40,6 @@ const toggleLogSchema=new Schema({
     }
 })
 
-const ToggleLogModel=model("toggleLog",toggleLogSchema)
+const ToggleLogModel = model("toggleLog", toggleLogSchema)
 
-module.exports=ToggleLogModel
+module.exports = ToggleLogModel
