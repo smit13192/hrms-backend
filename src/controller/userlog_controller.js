@@ -1,11 +1,9 @@
 const ApiError = require("../utils/error")
 const UserlogModel = require("../model/userlog_model")
-const EmployeeModel = require("../model/employee_model")
-const { EMPLOYEE_ROLE } = require("../config/string");
+const mongoose = require("mongoose")
 
-async function checkIn(req, res, next) {
+async function startTime(req, res, next) {
     try {
-        req.body.empId = req.id
         const currentDate = new Date();
 
         const year = currentDate.getFullYear();
@@ -13,22 +11,29 @@ async function checkIn(req, res, next) {
         const day = currentDate.getDate();
 
         const currentDateWithoutTime = new Date(year, month, day);
-        req.body.date = currentDateWithoutTime;
-        req.body.checkIn = currentDate;
 
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
         if (findCurrentDateUserlog) {
-            return next(new ApiError(400, "You already start your timer"));
+            if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
+                findCurrentDateUserlog.timeBlock.push({ startTime: currentDate, endTime: null });
+                await findCurrentDateUserlog.save();
+                return res.status(200).json({ success: true, message: "Time start" })
+            }
+            return next(new ApiError(400, "First time stop then start time"));
         }
-        const checkIn = new UserlogModel(req.body)
+        const checkIn = new UserlogModel({
+            empId: req.id,
+            date: currentDateWithoutTime,
+            timeBlock: [{ startTime: currentDate, endTime: null }]
+        })
         await checkIn.save()
-        res.status(201).json({ success: true, message: "checkIn log added suggesfully" })
+        res.status(201).json({ success: true, message: "Time start" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
 }
 
-async function checkOut(req, res, next) {
+async function stopTime(req, res, next) {
     try {
         const id = req.id;
         const currentDate = new Date();
@@ -43,44 +48,22 @@ async function checkOut(req, res, next) {
         if (!userlog) {
             return next(new ApiError(400, "Start timer first"));
         }
-        if (userlog.checkOut !== null) {
-            return res.status(200).json({
-                success: true,
-                data: {
-                    checkingTime: userlog.checkIn,
-                    checkoutTime: userlog.checkOut,
-                    hours: userlog.hours,
-                    minutes: userlog.minutes,
-                    time: Math.floor((userlog.checkOut - userlog.checkIn) / 1000),
-                },
-                message: "checkOut log added successfully",
-            });
+        if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime === null) {
+            userlog.timeBlock[userlog.timeBlock.length - 1].endTime = currentDate;
+            await userlog.save();
         }
-        userlog.checkOut = currentDate;
-        const durationInSeconds = Math.floor((userlog.checkOut - userlog.checkIn) / 1000);
-        userlog.hours = Math.floor(durationInSeconds / (60 * 60));
-        userlog.minutes = Math.floor((durationInSeconds % (60 * 60)) / (60));
-        await userlog.save();
-
-        res
+        return res
             .status(200)
             .json({
                 success: true,
-                data: {
-                    checkingTime: userlog.checkIn,
-                    checkoutTime: userlog.checkOut,
-                    hours: userlog.hours,
-                    minutes: userlog.minutes,
-                    time: durationInSeconds,
-                },
-                message: "checkOut log added successfully"
+                message: "Time stop"
             });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
 }
 
-async function getTime(req, res, next) {
+async function reportingTime(req, res, next) {
     try {
         const id = req.id;
         let time = 0;
@@ -94,39 +77,47 @@ async function getTime(req, res, next) {
 
         const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
         if (findUserLog) {
-            if (findUserLog.checkOut === null) {
-                time = Math.floor((currentDate - findUserLog.checkIn) / 1000)
+            for (let i = 0; i < findUserLog.timeBlock.length; i++) {
+                time += Math.floor(((findUserLog.timeBlock[i].endTime ?? currentDate) - findUserLog.timeBlock[i].startTime) / 1000);
+            }
+            if (findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime === null) {
+                return res.
+                    status(200).
+                    json({
+                        success: true,
+                        data: {
+                            isTotalTimeRunning: true,
+                            totalReportingTime: time,
+                            hours: Math.floor(time / (60 * 60)),
+                            minutes: Math.floor((time % (60 * 60)) / 60),
+                            seconds: Math.floor(time % 60),
+                        }
+                    });
             } else {
                 return res.
                     status(200).
                     json({
                         success: true,
                         data: {
-                            time: Math.floor((findUserLog.checkOut - findUserLog.checkIn) / 1000),
-                            checkingTime: findUserLog.checkIn.toISOString(),
-                            checkoutTime: findUserLog.checkOut.toISOString()
+                            isTotalTimeRunning: false,
+                            totalReportingTime: time,
+                            hours: Math.floor(time / (60 * 60)),
+                            minutes: Math.floor((time % (60 * 60)) / 60),
+                            seconds: Math.floor(time % 60),
                         }
                     });
             }
-            return res.
-                status(200).
-                json({
-                    success: true,
-                    data: {
-                        time: time,
-                        checkingTime: findUserLog.checkIn.toISOString(),
-                        checkoutTime: findUserLog.checkOut
-                    }
-                });
         } else {
             return res.
                 status(200).
                 json({
                     success: true,
                     data: {
-                        time: time,
-                        checkingTime: null,
-                        checkoutTime: null
+                        isTotalTimeRunning: false,
+                        totalReportingTime: time,
+                        hours: Math.floor(time / (60 * 60)),
+                        minutes: Math.floor((time % (60 * 60)) / 60),
+                        seconds: Math.floor(time % 60),
                     }
                 });
         }
@@ -135,22 +126,63 @@ async function getTime(req, res, next) {
     }
 }
 
-async function getUserlog(req, res, next) {
+async function getUserLog(req, res, next) {
     try {
-        if (req.role === EMPLOYEE_ROLE) {
-            const userlog = await UserlogModel.find({ empId: req.id })
-            res.status(200).json({ success: true, data: userlog })
-        }
-        else {
-            const employees = await EmployeeModel.find({ company: req.id });
-            const employeeId = employees.map((e) => e._id);
-            const userlog = await UserlogModel.find({ empId: { $in: employeeId } });
-            res.status(200).json({ success: true, data: userlog })
-        }
+        const empId = req.id;
+        const data = await UserlogModel.aggregate([
+            {
+                $match: {
+                    empId: {
+                        $eq: new mongoose.Types.ObjectId(empId)
+                    }
+                },
+            },
+            {
+                $unwind: "$timeBlock"
+            },
+            {
+                $group: {
+                    _id: "$date",
+                    totalDuration: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$timeBlock.endTime', null] },
+                                then: { $subtract: [new Date(), '$timeBlock.startTime'] },
+                                else: { $subtract: ['$timeBlock.endTime', '$timeBlock.startTime'] }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: '$_id',
+                    totalDurationInSeconds: {
+                        $floor: { $divide: ['$totalDuration', 1000] }
+                    },
+                    seconds: {
+                        $floor: { $mod: [{ $divide: ['$totalDuration', 1000] }, 60] }
+                    },
+                    minutes: {
+                        $floor: { $mod: [{ $divide: ['$totalDuration', 60000] }, 60] }
+                    },
+                    hours: {
+                        $floor: { $divide: ['$totalDuration', 3600000] }
+                    }
 
+                }
+            },
+            {
+                $sort: {
+                    date: 1
+                }
+            }
+        ]).exec()
+        res.status(200).json({ success: true, data: data })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
 }
 
-module.exports = { checkIn, checkOut, getTime, getUserlog }
+module.exports = { startTime, stopTime, reportingTime, getUserLog };
