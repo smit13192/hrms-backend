@@ -129,12 +129,21 @@ async function reportingTime(req, res, next) {
 async function getUserLog(req, res, next) {
     try {
         const empId = req.id;
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+
         const data = await UserlogModel.aggregate([
             {
                 $match: {
-                    empId: {
-                        $eq: new mongoose.Types.ObjectId(empId)
-                    }
+                    $expr: {
+                        $and: [
+                            { $eq: [{ $year: '$date' }, year] },
+                            { $eq: [{ $month: '$date' }, month + 1] },
+                            { $eq: ["$empId", new mongoose.Types.ObjectId(empId)] }
+                        ]
+                    },
                 },
             },
             {
