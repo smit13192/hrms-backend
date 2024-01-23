@@ -29,6 +29,10 @@ const teamSchema=new Schema({
         ref:"employees",
         required:true
     }],
+    totalDays:{
+      type:Number,
+      required:true
+    },
     isWorking:{
         type:Boolean,
         default:true

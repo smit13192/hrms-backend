@@ -2,6 +2,7 @@ const ApiError = require("../utils/error")
 const TeamModel = require("../model/team_model")
 const { EMPLOYEE_ROLE } = require("../config/string");
 const { teamValidation } = require("../config/joi.validation")
+const moment = require('moment'); 
 
 async function addTeam(req, res, next) {
     try {
@@ -11,7 +12,11 @@ async function addTeam(req, res, next) {
         if (teamValid.error) {
             return next(new ApiError(403, teamValid.error.details[0].message))
         }
+        const startDate = moment(req.body.startDate);
+        const endDate = moment(req.body.endDate);
+        const totalDays = endDate.diff(startDate, 'days');
 
+        req.body.totalDays = totalDays;
         const team = new TeamModel(req.body)
         await team.save()
         res.status(201).json({ success: true, data: team, message: "team created successfully" })
@@ -45,6 +50,10 @@ async function getTeam(req, res, next) {
 
 async function updateTeam(req, res, next) {
     try {
+      const startDate = moment(req.body.startDate);
+        const endDate = moment(req.body.endDate);
+        const totalDays = endDate.diff(startDate, 'days');
+        req.body.totalDays = totalDays;
         const team = await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
         res.status(200).json({ success: true, data: team, message: "team details  updated successfully" });
     } catch (e) {
