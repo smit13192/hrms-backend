@@ -13,7 +13,7 @@ async function login(req, res, next) {
             const comparePass = compareHash(password, findCompany.password);
             if (comparePass === true) {
                 const token = createToken({ _id: findCompany._id, role: COMPANY_ROLE });
-                res.status(200).json({ success: true, message: "login succesfully", token: token });
+                res.status(200).json({ statusCode: 200 ,success: true, message: "login succesfully", token: token });
             }
             else {
                 return next(new ApiError(401, "Password is wrong"))
@@ -25,7 +25,7 @@ async function login(req, res, next) {
                 const comparePass = compareHash(password, findEmployee.password);
                 if (comparePass === true) {
                     const token = createToken({ _id: findEmployee._id, role: EMPLOYEE_ROLE });
-                    res.status(200).json({ success: true, message: "login succesfully", token: token });
+                    res.status(200).json({ statusCode: 200 ,success: true, message: "login succesfully", token: token });
                 }
                 else {
                     return next(new ApiError(401, "Password is wrong"))

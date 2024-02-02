@@ -22,7 +22,7 @@ async function dashboard(req, res, next) {
         const projects = await ProjectModel.find({ companyId: req.id, status: "running" })
         const numberOfProjects = projects.filter(Object).length
 
-        res.status(200).json({ success: true, numberOfPresentEmp, numberOfAbsentEmp, numberOfProjects })
+        res.status(200).json({ statusCode: 200, success: true, numberOfPresentEmp, numberOfAbsentEmp, numberOfProjects })
 
     } catch (e) {
         next(new ApiError(400, e.message))

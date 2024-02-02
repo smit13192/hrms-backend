@@ -17,7 +17,7 @@ async function startTime(req, res, next) {
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
                 findCurrentDateUserlog.timeBlock.push({ startTime: currentDate, endTime: null });
                 await findCurrentDateUserlog.save();
-                return res.status(200).json({ success: true, message: "Time start" })
+                return res.status(201).json({ statusCode: 201, success: true, message: "Time start" })
             }
             return next(new ApiError(400, "First time stop then start time"));
         }
@@ -27,7 +27,7 @@ async function startTime(req, res, next) {
             timeBlock: [{ startTime: currentDate, endTime: null }]
         })
         await checkIn.save()
-        res.status(201).json({ success: true, message: "Time start" })
+        res.status(201).json({ statusCode: 201, success: true, message: "Time start" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -188,7 +188,7 @@ async function getUserLog(req, res, next) {
                 }
             }
         ]).exec()
-        res.status(200).json({ success: true, data: data })
+        res.status(200).json({ statusCode: 200 ,success: true, data: data })
     } catch (e) {
         next(new ApiError(400, e.message))
     }

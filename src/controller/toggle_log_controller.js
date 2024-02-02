@@ -8,7 +8,7 @@ async function addToggleLog(req, res, next) {
         req.body.empId = req.id
         const toggle = new ToggleLogModel(req.body)
         await toggle.save()
-        res.status(201).json({ success: true, data: toggle, message: "toggle log added successfully" })
+        res.status(201).json({ statusCode: 201 , success: true, data: toggle, message: "toggle log added successfully" })
     } catch (e) {
          next(new ApiError(400, e.message))
     }
@@ -20,11 +20,11 @@ async function getToggleLog(req, res, next) {
             const employees = await EmployeeModel.find({ company: req.id });
             const employeeId = employees.map((e) => e._id);
             const toggle = await ToggleLogModel.find({ empId: { $in: employeeId } });
-            res.status(200).json({ success: true, data: toggle });
+            res.status(200).json({ statusCode: 200 ,success: true, data: toggle });
         }
         else {
             const toggles = await ToggleLogModel.find({ empId: req.id })
-            res.status(200).json({ success: true, data: toggles })
+            res.status(200).json({ statusCode: 200 ,success: true, data: toggles })
         }
     } catch (e) {
          next(new ApiError(400, e.message))
@@ -34,7 +34,7 @@ async function getToggleLog(req, res, next) {
 async function updateToggleLog(req, res, next) {
     try {
         const toggle = await ToggleLogModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { newmm: true })
-        res.status(200).json({ success: true, data: toggle, message: "toggle updated successfully" })
+        res.status(200).json({ statusCode: 200 ,success: true, data: toggle, message: "toggle updated successfully" })
     } catch (e) {
          next(new ApiError(400, e.message))
     }
@@ -43,7 +43,7 @@ async function updateToggleLog(req, res, next) {
 async function deleteToggleLog(req, res, next) {
     try {
         const toggle = await ToggleLogModel.findByIdAndDelete({ _id: req.params.id })
-        res.status(200).json({ success: true, message: "toggle deleted successfully" })
+        res.status(200).json({ statusCode: 200 ,success: true, message: "toggle deleted successfully" })
     } catch (e) {
          next(new ApiError(400, e.message))
     }
