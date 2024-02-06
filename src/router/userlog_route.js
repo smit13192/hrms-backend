@@ -1,13 +1,13 @@
 const { Router } = require("express")
-const { checkIn, checkOut, getUserlog, getTime } = require("../controller/userlog_controller")
-const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string")
+const { startTime, stopTime, reportingTime, getUserLog } = require("../controller/userlog_controller")
+const { EMPLOYEE_ROLE } = require("../config/string")
 const { verifyUser } = require("../middleware/verify_user")
 
 const router = Router()
 
-router.post("/checkIn", verifyUser(EMPLOYEE_ROLE), checkIn)
-router.post("/checkOut", verifyUser(EMPLOYEE_ROLE), checkOut)
-router.get("/get-time", verifyUser(EMPLOYEE_ROLE), getTime)
-router.get("/", verifyUser([COMPANY_ROLE, EMPLOYEE_ROLE]), getUserlog)
+router.post("/start-time", verifyUser(EMPLOYEE_ROLE), startTime)
+router.post("/stop-time", verifyUser(EMPLOYEE_ROLE), stopTime)
+router.get("/reporting-time", verifyUser(EMPLOYEE_ROLE), reportingTime)
+router.get("/", verifyUser(EMPLOYEE_ROLE), getUserLog)
 
 module.exports = router
