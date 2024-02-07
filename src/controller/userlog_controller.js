@@ -116,7 +116,7 @@ async function getTime(req, res, next) {
                         time: time,
                         checkingTime: findUserLog.checkIn.toISOString(),
                         checkoutTime: findUserLog.checkOut
-                    }
+                    }   
                 });
         } else {
             return res.

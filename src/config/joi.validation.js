@@ -92,7 +92,7 @@ const leaveValidation = Joi.object().keys({
 const noticeValidation = Joi.object().keys({
     companyId: Joi.string().required(),
     title: Joi.string().required(),
-    description: Joi.string().required(),
+    description: Joi.string(),
     date: Joi.date().default(Date.now())
 });
 
