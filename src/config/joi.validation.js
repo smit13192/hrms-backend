@@ -72,6 +72,11 @@ const designationValidation = Joi.object().keys({
     companyId: Joi.string().required()
 })
 
+const tagsValidation = Joi.object().keys({
+    name: Joi.string().required(),
+    companyId: Joi.string().required()
+})
+
 const holidayValidation = Joi.object().keys({
     title: Joi.string().required(),
     startDate: Joi.date().required(),
@@ -120,6 +125,7 @@ module.exports = {
     employeeValidation,
     departmentValidation,
     designationValidation,
+    tagsValidation,
     holidayValidation,
     leaveValidation,
     noticeValidation,
