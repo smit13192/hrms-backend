@@ -21,12 +21,21 @@ const projectSchema = new Schema({
     },
     returnDate: {
         type: Date,
-        default: "null"
+        default: null
     },
     companyId: {
         type: Schema.Types.ObjectId,
         ref: "companies",
         required: true
+    },
+    leader: {
+        type: Schema.Types.ObjectId,
+        ref: 'employees',
+        required: true
+    },
+    employees: {
+        type: [{ type: Schema.Types.ObjectId, ref: 'employees' }],
+        default: []
     },
     isWorking: {
         type: Boolean,
@@ -35,9 +44,6 @@ const projectSchema = new Schema({
 }, {
     timestamps: true,
     toJSON: {
-        transform: (_doc, ret, _option) => {
-            delete ret._id;
-        },
         virtuals: true,
         versionKey: false,
     }

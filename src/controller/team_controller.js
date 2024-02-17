@@ -28,15 +28,13 @@ async function getTeam(req, res, next) {
                     { members: req.id },
                     { leader: req.id }
                 ]
-            }).populate("projectTitle").populate("leader").populate("members")
+            }).populate("project").populate("leader").populate("members")
 
-            const workingTeam = teams.filter((data) => data.isWorking === true)
-            res.status(200).json({ statusCode: 200 ,success: true, data: workingTeam })
+            res.status(200).json({ statusCode: 200 ,success: true, data: teams })
         }
         else {
-            const teams = await TeamModel.find({ companyId: req.id }).populate("projectTitle").populate("leader").populate("members")
-            const workingTeam = teams.filter((data) => data.isWorking === true)
-            res.status(200).json({ statusCode: 200 ,success: true, data: workingTeam })
+            const teams = await TeamModel.find({ companyId: req.id }).populate("project").populate("leader").populate("members")
+            res.status(200).json({ statusCode: 200 ,success: true, data: teams })
         }
     } catch (e) {
         next(new ApiError(400, e.message))
@@ -46,7 +44,7 @@ async function getTeam(req, res, next) {
 async function updateTeam(req, res, next) {
     try {
         const team = await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
-        res.status(200).json({ statusCode: 200 ,success: true, data: team, message: "team details  updated successfully" });
+        res.status(200).json({ statusCode: 200 ,success: true, data: team, message: "team details updated successfully" });
     } catch (e) {
         next(new ApiError(400, e.message))
     }

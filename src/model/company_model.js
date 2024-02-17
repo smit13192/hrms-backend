@@ -97,23 +97,6 @@ companySchema.pre("save", function (next) {
     next();
 });
 
-companySchema.pre("findOneAndDelete", async function (next) {
-    const query = this;
-    await EmployeeModel.deleteMany({ company: query._conditions._id });
-    await DesignationModel.deleteMany({ companyId: query._conditions._id });
-    await DepartmentModel.deleteMany({ companyId: query._conditions._id });
-    await HolidayModel.deleteMany({ companyId: query._conditions._id });
-    next();
-});
-
-companySchema.pre("findOneAndUpdate", async function (next) {
-    const update = this._update;
-    if (update.$set.publicId) {
-        const previousDocument = await this.model.findOne(this.getQuery());
-        await cloudinary.uploader.destroy(previousDocument.publicId);
-    }
-    next();
-});
 
 const CompanyModel = model("companies", companySchema);
 

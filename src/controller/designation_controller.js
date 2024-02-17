@@ -14,7 +14,7 @@ async function addDesignation(req, res, next) {
 
         const designation = new DesignationModel(req.body)
         await designation.save()
-        res.status(201).json({ statusCode: 201, success: true, data: designation, message: "designation added successfully" })
+        res.status(201).json({ statusCode: 201, success: true, data: designation, message: "Designation added successfully" })
     } catch (error) {
         next(new ApiError(400, error.message))
     }
@@ -41,7 +41,7 @@ async function updateDesignation(req, res, next) {
 async function deleteDesignation(req, res, next) {
     try {
         await DesignationModel.findByIdAndDelete({ _id: req.params.id })
-        res.status(200).json({ statusCode: 200, success: true, message: "designation delete successfully" });
+        res.status(200).json({ statusCode: 200, success: true, message: "Designation delete successfully" });
     } catch (error) {
         next(new ApiError(400, error.message))
     }

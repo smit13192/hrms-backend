@@ -26,7 +26,7 @@ async function getHoliday(req, res, next) {
     try {
         let companyId = req.id;
         if (req.role === EMPLOYEE_ROLE) {
-            companyId = await EmployeeModel.getCompanyId(req.id);
+            companyId = req.user.company;
         }
         const holidays = await HolidayModel.find({ companyId });
         res.status(200).json({ statusCode: 200, success: true, data: holidays });

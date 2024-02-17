@@ -7,13 +7,10 @@ const { leaveValidation } = require("../config/joi.validation")
 async function addLeave(req, res, next) {
     try {
         req.body.empId = req.id;
-
         const leaveValid = leaveValidation.validate(req.body)
         if (leaveValid.error) {
             return next(new ApiError(403, leaveValid.error.details[0].message))
-
         }
-
         const leave = new LeaveModel(req.body);
         await leave.save();
         res.status(201).json({ statusCode: 201 , success: true, data: leave, message: "leave added successfully" });

@@ -8,9 +8,8 @@ const fs = require("fs");
 const path = require("path");
 const EmployeeModel = require("../../model/employee_model");
 const { compareHash, hashPassword } = require("../../utils/hash")
-const { EMPLOYEE_ROLE, COMPANY_ROLE } = require("../../config/string")
+const { EMPLOYEE_ROLE, COMPANY_ROLE, FOLDER_NAME } = require("../../config/string")
 const { createCompanyValidation, employeeValidation } = require("../../config/joi.validation");
-const { error } = require("console");
 
 
 async function verifyEmail(req, res, next) {
@@ -75,7 +74,7 @@ async function createCompany(req, res, next) {
             return next(new ApiError(403, "Company logo is required"));
         }
         const path = file.path;
-        const result = await cloudinary.uploader.upload(path);
+        const result = await cloudinary.uploader.upload(path, { folder: FOLDER_NAME });
         req.body.logo = result.secure_url;
         req.body.publicId = result.public_id;
         fs.unlinkSync(path);
@@ -95,13 +94,14 @@ async function updateCompany(req, res, next) {
         const file = req.file;
         if (file) {
             const path = file.path;
-            const result = await cloudinary.uploader.upload(path);
+            const result = await cloudinary.uploader.upload(path, { folder: FOLDER_NAME });
             req.body.logo = result.secure_url;
             req.body.publicId = result.public_id;
+            await cloudinary.uploader.destroy(req.user.publicId);
             fs.unlinkSync(path);
         }
-        const company = await CompanyModel.findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true });
-        res.status(200).json({ statusCode: 200, success: true, message: "Detail updated successfully", data: company });
+        await CompanyModel.findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true, runValidators: true });
+        res.status(200).json({ statusCode: 200, success: true, message: "Detail updated successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -172,11 +172,8 @@ async function deleteEmployee(req, res, next) {
 
 async function getEmployee(req, res, next) {
     try {
-        debugger
-        const emps = await EmployeeModel.find({ company: req.id }).populate("department").populate("designation")
-
-        const workingEmployees = emps.filter((data) => data.isWorking === true);
-        res.status(200).json({ statusCode: 200, success: true, data: workingEmployees });
+        const employees = await EmployeeModel.find({ company: req.id, isWorking: true }).populate("department").populate("designation")
+        res.status(200).json({ statusCode: 200, success: true, data: employees });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -185,45 +182,39 @@ async function getEmployee(req, res, next) {
 async function changePassword(req, res, next) {
     try {
         const { id, role } = req;
-        let { email, password, newPassword } = req.body
+        let { password, newPassword } = req.body;
         if (role === EMPLOYEE_ROLE) {
-            const emp = await EmployeeModel.findById(id)
-
-            if (!emp) {
-                return next(new ApiError(404, "Employee not found"));
+            const employee = await EmployeeModel.findById(id);
+            if (!employee) {
+                return next(new ApiError(400, "Employee not found"));
             }
-
-            const comparePass = compareHash(password, emp.password);
-            if (emp.email === email && comparePass === true) {
+            const comparePass = compareHash(password, employee.password);
+            if (comparePass === true) {
                 newPassword = hashPassword(newPassword);
-                const changePass = await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: { password: newPassword } }, { new: true })
-                res.status(200).json({ statusCode: 200, success: true, message: "Your password change successfully" })
+                await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: { password: newPassword } }, { new: true });
+                res.status(200).json({ statusCode: 200, success: true, message: "Your password change successfully" });
             }
             else {
-                next(new ApiError(403, "details are incorrect"));
+                next(new ApiError(400, "Password is wrong"));
             }
         }
         else if (role === COMPANY_ROLE) {
             const company = await CompanyModel.findById(id)
 
             if (!company) {
-                return next(new ApiError(404, "company not found"));
+                return next(new ApiError(400, "Company is not found"));
             }
 
             const comparePass = compareHash(password, company.password);
-            if (company.email === email && comparePass === true) {
+            if (comparePass === true) {
                 newPassword = hashPassword(newPassword);
-                const changePass = await CompanyModel.findByIdAndUpdate({ _id: id }, { $set: { password: newPassword } }, { new: true })
+                await CompanyModel.findByIdAndUpdate({ _id: id }, { $set: { password: newPassword } }, { new: true })
                 res.status(200).json({ statusCode: 200, success: true, message: "Your password change successfully" })
             }
             else {
-                next(new ApiError(403, "details are incorrect"));
+                next(new ApiError(400, "Password is wrong"));
             }
         }
-        else {
-            next(new ApiError(401, "unauthorized user"));
-        }
-        req.body.email
     } catch (e) {
         next(new ApiError(400, e.message));
     }

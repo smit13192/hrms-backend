@@ -78,7 +78,7 @@ async function reportingTime(req, res, next) {
         const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
         if (findUserLog) {
             for (let i = 0; i < findUserLog.timeBlock.length; i++) {
-                time += Math.floor(((findUserLog.timeBlock[i].endTime ?? currentDate) - findUserLog.timeBlock[i].startTime) / 1000);
+                time += Math.floor((findUserLog.timeBlock[i].endTime ?? currentDate) - findUserLog.timeBlock[i].startTime);
             }
             if (findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime === null) {
                 return res.
@@ -87,10 +87,10 @@ async function reportingTime(req, res, next) {
                         success: true,
                         data: {
                             isTotalTimeRunning: true,
-                            totalReportingTime: time,
-                            hours: Math.floor(time / (60 * 60)),
-                            minutes: Math.floor((time % (60 * 60)) / 60),
-                            seconds: Math.floor(time % 60),
+                            totalReportingTime: Math.floor(time / 1000),
+                            hours: Math.floor(time / 3600000),
+                            minutes: Math.floor((time / 60000) % 60),
+                            seconds: Math.floor((time / 1000) % 60),
                         }
                     });
             } else {
@@ -100,10 +100,10 @@ async function reportingTime(req, res, next) {
                         success: true,
                         data: {
                             isTotalTimeRunning: false,
-                            totalReportingTime: time,
-                            hours: Math.floor(time / (60 * 60)),
-                            minutes: Math.floor((time % (60 * 60)) / 60),
-                            seconds: Math.floor(time % 60),
+                            totalReportingTime: Math.floor(time / 1000),
+                            hours: Math.floor(time / 3600000),
+                            minutes: Math.floor((time / 60000) % 60),
+                            seconds: Math.floor((time / 1000) % 60),
                         }
                     });
             }
@@ -114,10 +114,10 @@ async function reportingTime(req, res, next) {
                     success: true,
                     data: {
                         isTotalTimeRunning: false,
-                        totalReportingTime: time,
-                        hours: Math.floor(time / (60 * 60)),
-                        minutes: Math.floor((time % (60 * 60)) / 60),
-                        seconds: Math.floor(time % 60),
+                        totalReportingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
                     }
                 });
         }
@@ -188,7 +188,7 @@ async function getUserLog(req, res, next) {
                 }
             }
         ]).exec()
-        res.status(200).json({ statusCode: 200 ,success: true, data: data })
+        res.status(200).json({ statusCode: 200, success: true, data: data })
     } catch (e) {
         next(new ApiError(400, e.message))
     }

@@ -12,10 +12,11 @@ const toggleLogSchema = new Schema({
     },
     project: {
         type: Schema.Types.ObjectId,
-        ref: "projects",
+        ref: "project",
     },
     tags: {
         type: String,
+        default: null,
     },
     date: {
         type: Date,
@@ -27,14 +28,11 @@ const toggleLogSchema = new Schema({
     },
     endTime: {
         type: Date,
-        default: null
+        default: true
     }
 }, {
     timestamps: true,
     toJSON: {
-        transform: (_doc, ret, _option) => {
-            delete ret._id;
-        },
         virtuals: true,
         versionKey: false,
     }

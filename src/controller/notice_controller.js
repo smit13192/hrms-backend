@@ -23,7 +23,7 @@ async function getNotice(req, res, next) {
     try {
         let companyId = req.id;
         if (req.role === EMPLOYEE_ROLE) {
-            companyId = await EmployeeModel.getCompanyId(req.id);
+            companyId = req.user.company;
         }
         const notice = await NoticeModel.find({ companyId });
         res.status(200).json({ statusCode: 200 ,success: true, date: notice });
