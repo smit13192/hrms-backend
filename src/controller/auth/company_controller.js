@@ -121,13 +121,13 @@ async function deleteCompany(req, res, next) {
 async function viewCompanyOrProfile(req, res, next) {
     try {
         if (req.role === EMPLOYEE_ROLE) {
-            const employee = await EmployeeModel.findById({ _id: req.id })
-            res.status(200).json({ statusCode: 200, success: true, data: employee })
+            const employee = await EmployeeModel.findById({ _id: req.id }).populate(["department", "designation"]);
+            res.status(200).json({ statusCode: 200, success: true, data: employee });
         }
         else {
             const id = req.id
-            const company = await CompanyModel.findById({ _id: id }).populate("workCategory")
-            res.status(200).json({ statusCode: 200, success: true, data: company })
+            const company = await CompanyModel.findById({ _id: id }).populate("workCategory");
+            res.status(200).json({ statusCode: 200, success: true, data: company });
         }
     } catch (e) {
         next(new ApiError(400, e.message));
