@@ -16,7 +16,7 @@ async function login(req, res, next) {
                 res.status(200).json({ statusCode: 200, success: true, message: "login succesfully", token: token });
             }
             else {
-                return next(new ApiError(401, "Password is wrong"))
+                return next(new ApiError(400, "Password is wrong"))
             }
         }
         else {
@@ -28,10 +28,10 @@ async function login(req, res, next) {
                     res.status(200).json({ statusCode: 200, success: true, message: "login succesfully", token: token });
                 }
                 else {
-                    return next(new ApiError(401, "Password is wrong"))
+                    return next(new ApiError(400, "Password is wrong"))
                 }
             } else {
-                return next(new ApiError(401, "Email not exist"))
+                return next(new ApiError(400, "Email not exist"))
             }
         }
     } catch (error) {
@@ -50,10 +50,10 @@ async function employeeLogin(req, res, next) {
                 res.status(200).json({ statusCode: 200, success: true, message: "login succesfully", token: token });
             }
             else {
-                return next(new ApiError(401, "Password is wrong"))
+                return next(new ApiError(400, "Password is wrong"))
             }
         } else {
-            return next(new ApiError(401, "Email not exist"))
+            return next(new ApiError(400, "Email not exist"))
         }
     } catch (error) {
         next(new ApiError(400, error.message))
