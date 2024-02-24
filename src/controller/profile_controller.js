@@ -20,7 +20,7 @@ async function addProfile(req, res, next) {
             fs.unlinkSync(path);
         }
         const id = req.id
-        const profile = await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: req.body }, { new: true })
+        const profile = await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: req.body }, { new: true }).populate(["department", "designation"]);
         res.status(200).json({ statusCode: 200, success: true, data: profile, message: "profile details added successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
