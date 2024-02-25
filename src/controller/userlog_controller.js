@@ -131,8 +131,11 @@ async function getUserLog(req, res, next) {
         const empId = req.id;
         const currentDate = new Date();
 
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth() + 1;
+
+        if (req.query.year && !isNaN(req.query.year)) year = parseInt(req.query.year);
+        if (req.query.month && !isNaN(req.query.month)) month = parseInt(req.query.month);
 
         const data = await UserlogModel.aggregate([
             {
@@ -140,7 +143,7 @@ async function getUserLog(req, res, next) {
                     $expr: {
                         $and: [
                             { $eq: [{ $year: '$date' }, year] },
-                            { $eq: [{ $month: '$date' }, month + 1] },
+                            { $eq: [{ $month: '$date' }, month] },
                             { $eq: ["$empId", new mongoose.Types.ObjectId(empId)] }
                         ]
                     },
