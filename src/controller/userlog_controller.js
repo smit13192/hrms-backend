@@ -48,6 +48,9 @@ async function stopTime(req, res, next) {
         if (!userlog) {
             return next(new ApiError(400, "Start timer first"));
         }
+        if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime !== null) {
+            return next(new ApiError(400, "Start timer first"));
+        }
         if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime === null) {
             userlog.timeBlock[userlog.timeBlock.length - 1].endTime = currentDate;
             await userlog.save();
@@ -55,6 +58,7 @@ async function stopTime(req, res, next) {
         return res
             .status(200)
             .json({
+                statusCode: 200,
                 success: true,
                 message: "Time stop"
             });
@@ -84,6 +88,7 @@ async function reportingTime(req, res, next) {
                 return res.
                     status(200).
                     json({
+                        statusCode: 200,
                         success: true,
                         data: {
                             isTotalTimeRunning: true,
@@ -97,6 +102,7 @@ async function reportingTime(req, res, next) {
                 return res.
                     status(200).
                     json({
+                        statusCode: 200,
                         success: true,
                         data: {
                             isTotalTimeRunning: false,
@@ -111,6 +117,7 @@ async function reportingTime(req, res, next) {
             return res.
                 status(200).
                 json({
+                    statusCode: 200,
                     success: true,
                     data: {
                         isTotalTimeRunning: false,
