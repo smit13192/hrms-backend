@@ -32,7 +32,7 @@ const createCompanyValidation = Joi.object().keys({
 const employeeValidation = Joi.object().keys({
     company: Joi.string().required(),
     firstName: Joi.string().required(),
-    middleName: Joi.string().required(),
+    middleName: Joi.string(),
     lastName: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -80,9 +80,9 @@ const tagsValidation = Joi.object().keys({
 const holidayValidation = Joi.object().keys({
     title: Joi.string().required(),
     startDate: Joi.date().required(),
-    endDate: Joi.date().allow(null),
+    endDate: Joi.date().allow(null,''),
     holidayType: Joi.string().required(),
-    description: Joi.string().allow(null),
+    description: Joi.string().allow('',null),
     companyId: Joi.string().required()
 });
 
