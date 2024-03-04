@@ -27,7 +27,7 @@ router.use("/leave", leaveRouter) // DONE
 router.use("/notice", noticeRouter) // DONE
 router.use("/profile", profileRouter) // DONE
 router.use("/userlog", userlogRouter) // DONE
-router.use("/toggleLog", toggleLogRouter) 
+router.use("/toggleLog", toggleLogRouter)
 router.use("/team", teamRouter)
 router.use("/tags", tagsRouter)
 router.use(dashboardRouter)

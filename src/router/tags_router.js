@@ -1,7 +1,7 @@
 const { Router } = require("express")
-const { addTags, getTags, deleteTags  } = require("../controller/tags_controller")
+const { addTags, getTags, deleteTags } = require("../controller/tags_controller")
 const { verifyUser } = require("../middleware/verify_user")
-const { COMPANY_ROLE,EMPLOYEE_ROLE } = require("../config/string")
+const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string")
 
 const router = Router();
 

@@ -8,8 +8,8 @@ async function addToggleLog(req, res, next) {
     try {
         const { project } = req.body;
         if (!project) return next(new ApiError(400, "Project is required"));
-        const employeeContainProject  = await ProjectModel.findOne({ employees: req.id, _id: project });
-        if(!employeeContainProject) return next(new ApiError(400, "You can not access this project log"));
+        const employeeContainProject = await ProjectModel.findOne({ employees: req.id, _id: project });
+        if (!employeeContainProject) return next(new ApiError(400, "You can not access this project log"));
         req.body.empId = req.id
         const toggle = new ToggleLogModel(req.body)
         await toggle.save()
@@ -21,6 +21,22 @@ async function addToggleLog(req, res, next) {
 
 async function getToggleLog(req, res, next) {
     try {
+
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : null;
+        const endDate = req.query.endDate ? new Date(req.query.endDate) : null;
+
+        const filter = {};
+        if (startDate && endDate) {
+            filter.date = {
+                $gte: startDate,
+                $lte: endDate,
+            };
+        } else if (startDate) {
+            filter.date = { $gte: startDate };
+        } else if (endDate) {
+            filter.date = { $lte: endDate };
+        }
+
         if (req.role === COMPANY_ROLE) {
             const populateFields = {
                 path: "empId",
@@ -38,11 +54,11 @@ async function getToggleLog(req, res, next) {
                     department: true,
                 }
             };
-            const toggle = await ToggleLogModel.find({ project: req.params.id }).populate(populateFields);
+            const toggle = await ToggleLogModel.find({ project: req.params.id, ...filter }).populate(populateFields);
             res.status(200).json({ statusCode: 200, success: true, data: toggle });
         }
         else {
-            const toggles = await ToggleLogModel.find({ empId: req.id })
+            const toggles = await ToggleLogModel.find({ empId: req.id, ...filter })
             res.status(200).json({ statusCode: 200, success: true, data: toggles })
         }
     } catch (e) {
