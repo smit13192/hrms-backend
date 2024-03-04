@@ -22,19 +22,31 @@ async function addTeam(req, res, next) {
 
 async function getTeam(req, res, next) {
     try {
+        debugger
         if (req.role === EMPLOYEE_ROLE) {
             const teams = await TeamModel.find({
                 $or: [
                     { members: req.id },
                     { leader: req.id }
                 ]
-            }).populate("project").populate("leader").populate("members")
-
-            res.status(200).json({ statusCode: 200 ,success: true, data: teams })
+            })
+            .populate("projectTitle")
+            .populate({
+                path: "leader",
+                populate: { path: "designation" }
+            })
+            .populate({
+                path: "members",
+                populate: { path: "designation" } 
+            });
+        
+            const workingTeam = teams.filter((data) => data.isWorking === true)
+            res.status(200).json({ success: true, data: workingTeam })
         }
         else {
-            const teams = await TeamModel.find({ companyId: req.id }).populate("project").populate("leader").populate("members")
-            res.status(200).json({ statusCode: 200 ,success: true, data: teams })
+            const teams = await TeamModel.find({ companyId: req.id }).populate("projectTitle").populate("leader").populate("members")
+            const workingTeam = teams.filter((data) => data.isWorking === true)
+            res.status(200).json({ success: true, data: workingTeam })
         }
     } catch (e) {
         next(new ApiError(400, e.message))

@@ -13,6 +13,7 @@ const userlogRouter = require("./userlog_router")
 const toggleLogRouter = require("./toggle_log_router")
 const teamRouter = require("./team_router")
 const dashboardRouter = require("./dashboard_router")
+const tagsRouter = require("./tags_router")
 
 const router = Router();
 router.use("/company", companyRouter);  // DONE
@@ -28,6 +29,7 @@ router.use("/profile", profileRouter) // DONE
 router.use("/userlog", userlogRouter) // DONE
 router.use("/toggleLog", toggleLogRouter) 
 router.use("/team", teamRouter)
+router.use("/tags", tagsRouter)
 router.use(dashboardRouter)
 
 module.exports = router;

@@ -68,11 +68,8 @@ const companySchema = new Schema({
         required: true,
     },
     workCategory: {
-        type: [{
             type: Schema.Types.ObjectId,
             ref: "work-categories"
-        }],
-        default: [],
     },
     publicId: {
         type: String,

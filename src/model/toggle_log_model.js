@@ -24,11 +24,9 @@ const toggleLogSchema = new Schema({
     },
     startTime: {
         type: Date,
-        required: true
     },
     endTime: {
         type: Date,
-        default: true
     }
 }, {
     timestamps: true,

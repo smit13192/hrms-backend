@@ -12,6 +12,7 @@ router.put("/update-company", verifyUser(COMPANY_ROLE), multer.single("logo"), u
 router.delete("/", verifyUser(COMPANY_ROLE), deleteCompany)
 router.get("/view-company", verifyUser(COMPANY_ROLE), viewCompanyOrProfile)
 router.post("/add-employee", verifyUser(COMPANY_ROLE), addEmployee)
+router.put("/update-employee/:id",verifyUser(COMPANY_ROLE),addOrUpdateProfile)
 router.delete("/delete-employee/:id", verifyUser(COMPANY_ROLE), deleteEmployee)
 router.get("/view-employee", verifyUser(COMPANY_ROLE), getEmployee)
 router.post("/change-password", verifyUser(COMPANY_ROLE), changePassword)
