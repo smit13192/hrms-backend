@@ -173,7 +173,6 @@ async function deleteEmployee(req, res, next) {
 
 async function getEmployee(req,res,next){
     try {
-        debugger
         const emps=await EmployeeModel.find({company:req.id}).populate("department").populate("designation")
 
         const workingEmployees = emps.filter((data) => data.isWorking === true);

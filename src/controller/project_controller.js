@@ -1,6 +1,8 @@
 const ApiError = require("../utils/error")
 const ProjectModel = require("../model/project_model")
-const { projectValidation } = require("../config/joi.validation")
+const { projectValidation } = require("../config/joi.validation");
+const EmployeeModel = require("../model/employee_model");
+const { EMPLOYEE_ROLE } = require("../config/string");
 
 async function addProject(req, res, next) {
     try {
@@ -21,7 +23,12 @@ async function addProject(req, res, next) {
 
 async function getProject(req, res, next) {
     try {
-        const projects = await ProjectModel.find({ companyId: req.id });
+       
+        let companyId = req.id;
+        if (req.role === EMPLOYEE_ROLE) {
+            companyId = await EmployeeModel.getCompanyId(req.id);
+        }
+        const projects = await ProjectModel.find({ companyId });
         const workingProject = projects.filter((data) => data.isWorking == true)
         res.status(200).json({ success: true, data: workingProject });
     } catch (e) {
