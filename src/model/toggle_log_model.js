@@ -12,22 +12,23 @@ const toggleLogSchema = new Schema({
     },
     project: {
         type: Schema.Types.ObjectId,
-        ref: "projects",
+        ref: "project",
     },
-    tags: {
-        type: String,
-    },
+    tags: [
+      {  type: Schema.Types.ObjectId,
+        ref: "tags",}
+    ],
     date: {
         type: Date,
         required: true
     },
     startTime: {
-        type: Date,
-        required: true
+        type: String,
+        // required: true
     },
     endTime: {
-        type: Date,
-        default: null
+        type: String,
+        // default: null
     }
 }, {
     timestamps: true,

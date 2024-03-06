@@ -63,20 +63,26 @@ const departmentValidation = Joi.object().keys({
 
 const designationValidation = Joi.object().keys({
     name: Joi.string().required(),
-    companyId: Joi.string().required(),
-});
+    companyId: Joi.string().required()
+})
+
+const tagsValidation = Joi.object().keys({
+    name: Joi.string().required(),
+    companyId: Joi.string().required()
+})
 
 const holidayValidation = Joi.object().keys({
     title: Joi.string().required(),
     startDate: Joi.date().required(),
-    endDate: Joi.date().allow(null),
+    endDate: Joi.date().allow(null,''),
     holidayType: Joi.string().required(),
-    description: Joi.string().allow(null),
-    companyId: Joi.string().required(),
+    description: Joi.string().allow(null,""),
+    companyId: Joi.string().required()
 });
 
 const leaveValidation = Joi.object().keys({
     empId: Joi.string().required(),
+    leaveTitle: Joi.string().required(),
     leaveReason: Joi.string().required(),
     startDate: Joi.date().required(),
     endDate: Joi.date().allow(null),
@@ -114,6 +120,7 @@ module.exports = {
     employeeValidation,
     departmentValidation,
     designationValidation,
+    tagsValidation,
     holidayValidation,
     leaveValidation,
     noticeValidation,

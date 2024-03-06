@@ -10,8 +10,7 @@ const noticeSchema = new Schema({
         required: true
     },
     description: {
-        type: String,
-        required: true
+        type: String
     },
     date: {
         type: Date,
