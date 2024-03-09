@@ -14,7 +14,7 @@ async function addTeam(req, res, next) {
 
         const team = new TeamModel(req.body)
         await team.save()
-        res.status(201).json({ success: true, data: team, message: "team created successfully" })
+        res.status(201).json({ success: true, data:team, message: "team created successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -22,42 +22,47 @@ async function addTeam(req, res, next) {
 
 async function getTeam(req, res, next) {
     try {
-        debugger
+        debugger;
         if (req.role === EMPLOYEE_ROLE) {
             const teams = await TeamModel.find({
                 $or: [
                     { members: req.id },
-                    { leader: req.id }
+                    { "leader.leaderId": req.id }
                 ]
             })
             .populate("projectTitle")
             .populate({
-                path: "leader",
-                populate: { path: "designation" }
+                path: "leader.leaderId",
+                populate: [
+                    { path: "designation" },
+                    { path: "department" }
+                ]
             })
             .populate({
-                path: "members",
-                populate: { path: "designation" } 
+                path: "leader.members",
+                populate:[ { path: "designation" } ,  { path: "department" }]
             });
         
-            const workingTeam = teams.filter((data) => data.isWorking === true)
-            res.status(200).json({ success: true, data: workingTeam })
+            const workingTeam = teams.filter((data) => data.isWorking === true);
+            res.status(200).json({ success: true, data: workingTeam });
         }
         else {
-            const teams = await TeamModel.find({ companyId: req.id }).populate("projectTitle").populate({
-                path: "leader",
-                populate: { path: "designation" }
-            })
-            .populate({
-                path: "members",
-                populate: { path: "designation" } 
-            });
-        
-            const workingTeam = teams.filter((data) => data.isWorking === true)
-            res.status(200).json({ success: true, data: workingTeam })
+            const teams = await TeamModel.find({ companyId: req.id })
+                .populate("projectTitle")
+                .populate({
+                    path: "leader.leaderId",
+                    populate:[ { path: "designation" } ,  { path: "department" }]
+                })
+                .populate({
+                    path: "leader.members",
+                    populate:[ { path: "designation" } ,  { path: "department" }]
+                });
+            
+            const workingTeam = teams.filter((data) => data.isWorking === true);
+            res.status(200).json({ success: true, data: workingTeam });
         }
     } catch (e) {
-        next(new ApiError(400, e.message))
+        next(new ApiError(400, e.message));
     }
 }
 

@@ -116,8 +116,10 @@ const teamValidation = Joi.object({
     startDate: Joi.date().allow(null),
     endDate: Joi.date().allow(null),
     days: Joi.number().integer().min(0),
-    leader: Joi.string().required(),
-    members: Joi.array().items(Joi.string().required()).required()
+    leader: Joi.object({
+        leaderId: Joi.string().required(),
+        members: Joi.array().items(Joi.string().required()).required()
+    }).required(),
 });
 
 module.exports = {

@@ -12,10 +12,11 @@ const toggleLogSchema = new Schema({
     },
     project: {
         type: Schema.Types.ObjectId,
-        ref: "projects",
+        ref: "project",
     },
     tags: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "tags",
     },
     date: {
         type: Date,

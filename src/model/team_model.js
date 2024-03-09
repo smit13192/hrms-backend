@@ -20,15 +20,17 @@ const teamSchema=new Schema({
         default:null
     },
     leader:{
-        type:Schema.Types.ObjectId,
-        ref:"employees",
-        required:true
+        leaderId:{
+            type:Schema.Types.ObjectId,
+            ref:"employees",
+            required:true
+        },
+        members:[{
+            type:Schema.Types.ObjectId,
+            ref:"employees",
+            required:true
+        }],
     },
-    members:[{
-        type:Schema.Types.ObjectId,
-        ref:"employees",
-        required:true
-    }],
     isWorking:{
         type:Boolean,
         default:true
