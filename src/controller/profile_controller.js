@@ -10,7 +10,7 @@ async function editProfile(req, res, next) {
             const result = await cloudinary.uploader.upload(file.path);
             req.body.profilePic = result.secure_url;
             req.body.publicId = result.public_id;
-            fs.unlinkSync(path);
+            fs.unlinkSync(file.path);
         }
         const id = req.id;
         const profile = await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: req.body }, { new: true }).populate([{
