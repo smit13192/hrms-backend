@@ -10,28 +10,19 @@ const userlogSchema = new Schema({
         type: Date,
         required: true
     },
-    checkIn: {
-        type: Date,
-        required: true
-    },
-    checkOut: {
-        type: Date,
-        default: null
-    },
-    hours: {
-        type: Number,
-        default: null
-    },
-    minutes: {
-        type: Number,
-        default: null
-    }
+    timeBlock: [{
+        startTime: {
+            type: Date,
+            required: true
+        },
+        endTime: {
+            type: Date,
+            default: null,
+        }
+    }],
 }, {
     timestamps: true,
     toJSON: {
-        transform: (_doc, ret, _option) => {
-            delete ret._id;
-        },
         virtuals: true,
         versionKey: false,
     }

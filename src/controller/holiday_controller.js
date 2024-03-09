@@ -15,7 +15,7 @@ async function addHoliday(req, res, next) {
 
         const holiday = new HolidayModel(req.body)
         await holiday.save()
-        res.status(201).json({ success: true, data: holiday, message: "holiday added sucessfully" })
+        res.status(201).json({ statusCode: 201, success: true, data: holiday, message: "holiday added sucessfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -26,10 +26,10 @@ async function getHoliday(req, res, next) {
     try {
         let companyId = req.id;
         if (req.role === EMPLOYEE_ROLE) {
-            companyId = await EmployeeModel.getCompanyId(req.id);
+            companyId = req.user.company;
         }
         const holidays = await HolidayModel.find({ companyId });
-        res.status(200).json({ success: true, data: holidays });
+        res.status(200).json({ statusCode: 200, success: true, data: holidays });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -38,7 +38,7 @@ async function getHoliday(req, res, next) {
 async function updateHoliday(req, res, next) {
     try {
         const holiday = await HolidayModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true })
-        res.status(200).json({ success: true, data: holiday, message: "holiday update sucessfully" })
+        res.status(200).json({ statusCode: 200, success: true, data: holiday, message: "holiday update sucessfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -47,7 +47,7 @@ async function updateHoliday(req, res, next) {
 async function deleteHoliday(req, res, next) {
     try {
         await HolidayModel.findByIdAndDelete({ _id: req.params.id })
-        res.status(200).json({ success: true, message: "holiday delete sucessfully" })
+        res.status(200).json({ statusCode: 200, success: true, message: "holiday delete sucessfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }

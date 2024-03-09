@@ -10,13 +10,17 @@ const leaveSchema = new Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        default: null
+    },
     startDate: {
         type: Date,
         required: true
     },
     endDate: {
         type: Date,
-        default: null
+        required: true
     },
     status: {
         type: String,
@@ -26,9 +30,6 @@ const leaveSchema = new Schema({
 }, {
     timestamps: true,
     toJSON: {
-        transform: (_doc, ret, _option) => {
-            delete ret._id;
-        },
         virtuals: true,
         versionKey: false,
     }

@@ -7,15 +7,13 @@ const { EMPLOYEE_ROLE } = require("../config/string");
 async function addProject(req, res, next) {
     try {
         req.body.companyId = req.id;
-
         const proValid = projectValidation.validate(req.body)
         if (proValid.error) {
             return next(new ApiError(403, proValid.error.details[0].message))
         }
-
         const project = new ProjectModel(req.body);
         await project.save();
-        res.status(201).json({ success: true, data: project, message: "project details added successfully" });
+        res.status(201).json({ statusCode: 201, success: true, message: "project details added successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -36,10 +34,35 @@ async function getProject(req, res, next) {
     }
 }
 
+async function getOneProject(req, res, next) {
+//     try {
+//         if (req.role === EMPLOYEE_ROLE) {
+//             projectPipeline.unshift({
+//                 $match: {
+//                     employees: new Types.ObjectId(req.id),
+//                     _id: new Types.ObjectId(req.params.id)
+//                 }
+//             });
+//             const projects = await ProjectModel.aggregate(projectPipeline);
+//             return res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
+//         }
+//         projectPipeline.unshift({
+//             $match: {
+//                 companyId: new Types.ObjectId(req.id),
+//                 _id: new Types.ObjectId(req.params.id)
+//             }
+//         });
+//         const projects = await ProjectModel.aggregate(projectPipeline);
+//         res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
+//     } catch (e) {
+//         next(new ApiError(400, e.message));
+//     }
+}
+
 async function updateProject(req, res, next) {
     try {
-        const project = await ProjectModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
-        res.status(200).json({ success: true, data: project, message: "project details update successfully" });
+        await ProjectModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
+        res.status(200).json({ statusCode: 200, success: true, message: "project details update successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -47,12 +70,11 @@ async function updateProject(req, res, next) {
 
 async function deleteProject(req, res, next) {
     try {
-        debugger
-        await ProjectModel.findByIdAndUpdate({ _id: req.params.id }, { $set: { isWorking: false } }, { new: true });
-        res.status(200).json({ success: true, message: "project delete sucessfully" });
+        await ProjectModel.findByIdAndUpdate({ _id: req.params.id }, { $set: { isWorking: false, status: "complete" } }, { new: true });
+        res.status(200).json({ statusCode: 200, success: true, message: "project delete sucessfully" });
     } catch (error) {
         next(new ApiError(400, e.message));
     }
 }
 
-module.exports = { addProject, getProject, updateProject, deleteProject };
+module.exports = { addProject, getProject, getOneProject, updateProject, deleteProject };

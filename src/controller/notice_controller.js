@@ -13,7 +13,7 @@ async function addNotice(req, res, next) {
         }
         const notice = new NoticeModel(req.body)
         await notice.save()
-        res.status(201).json({ success: true, data: notice, message: "notice added successfully" })
+        res.status(201).json({ statusCode: 201 , success: true, data: notice, message: "notice added successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -23,10 +23,10 @@ async function getNotice(req, res, next) {
     try {
         let companyId = req.id;
         if (req.role === EMPLOYEE_ROLE) {
-            companyId = await EmployeeModel.getCompanyId(req.id);
+            companyId = req.user.company;
         }
         const notice = await NoticeModel.find({ companyId });
-        res.status(200).json({ success: true, data: notice });
+        res.status(200).json({ statusCode: 200 ,success: true, date: notice });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -35,7 +35,7 @@ async function getNotice(req, res, next) {
 async function updateNotice(req, res, next) {
     try {
         const notice = await NoticeModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true })
-        res.status(200).json({ success: true, data: notice, message: "notice update sucessfully" })
+        res.status(200).json({ statusCode: 200 ,success: true, data: notice, message: "notice update sucessfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -44,7 +44,7 @@ async function updateNotice(req, res, next) {
 async function deleteNotice(req, res, next) {
     try {
         await NoticeModel.findByIdAndDelete({ _id: req.params.id })
-        res.status(200).json({ success: true, message: "notice delete sucessfully" })
+        res.status(200).json({ statusCode: 200 ,success: true, message: "notice delete sucessfully" })
     } catch (error) {
         next(new ApiError(400, e.message))
     }

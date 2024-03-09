@@ -1,4 +1,7 @@
 const { verifyToken } = require("../authentication/jwt_token");
+const { EMPLOYEE_ROLE, COMPANY_ROLE } = require("../config/string");
+const CompanyModel = require("../model/company_model");
+const EmployeeModel = require("../model/employee_model");
 const ApiError = require("../utils/error");
 
 function verifyUser(role) {
@@ -16,30 +19,58 @@ function verifyUser(role) {
 
             if (!data || !data.valid) {
                 if (data.expired) {
-                    return next(new ApiError(401, "Token expired")); // Handle expired token
+                    return next(new ApiError(401, "Token expired"));
                 } else {
                     return next(new ApiError(401, "Invalid token"));
                 }
             }
-
             const { decoded } = data;
             if (typeof role === "string") {
                 if (decoded.role === role) {
-                    req.id = decoded._id;
-                    req.role = decoded.role;
-                    return next();
+                    if (role === COMPANY_ROLE) {
+                        const findCompany = await CompanyModel.findById(decoded._id);
+                        if (findCompany) {
+                            req.id = decoded._id;
+                            req.role = decoded.role;
+                            req.user = findCompany;
+                            return next();
+                        }
+                    } else if (role === EMPLOYEE_ROLE) {
+                        const findEmployee = await EmployeeModel.findById(decoded._id);
+                        if (findEmployee) {
+                            req.id = decoded._id;
+                            req.role = decoded.role;
+                            req.user = findEmployee;
+                            return next();
+                        }
+                    }
+                    return next(new ApiError(401, "Unauthorized user"));
                 }
             } else {
                 if (role.includes(decoded.role)) {
-                    req.id = decoded._id;
-                    req.role = decoded.role;
-                    return next();
+                    if (decoded.role === COMPANY_ROLE) {
+                        const findCompany = await CompanyModel.findById(decoded._id);
+                        if (findCompany) {
+                            req.id = decoded._id;
+                            req.role = decoded.role;
+                            req.user = findCompany;
+                            return next();
+                        }
+                    } else if (decoded.role === EMPLOYEE_ROLE) {
+                        const findEmployee = await EmployeeModel.findById(decoded._id);
+                        if (findEmployee) {
+                            req.id = decoded._id;
+                            req.role = decoded.role;
+                            req.user = findEmployee;
+                            return next();
+                        }
+                    }
+                    return next(new ApiError(401, "Unauthorized user"));
                 }
             }
-
-            return next(new ApiError(401, "Role mismatch"));
+            return next(new ApiError(401, "Unauthorized user"));
         } catch (e) {
-            return next(new ApiError(400,e.message));
+            return next(new ApiError(401, 'Unauthorized user'));
         }
     }
 }

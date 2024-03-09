@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const { addHoliday, getHoliday, updateHoliday, deleteHoliday } = require("../controller/\/holiday_controller")
+const { addHoliday, getHoliday, updateHoliday, deleteHoliday } = require("../controller/holiday_controller")
 const { verifyUser } = require("../middleware/verify_user")
 const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string")
 
