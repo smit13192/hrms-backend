@@ -7,7 +7,7 @@ async function editProfile(req, res, next) {
     try {
         const { file }= req;
         if(file) {
-            const result = await cloudinary.uploader.upload(path);
+            const result = await cloudinary.uploader.upload(file.path);
             req.body.profilePic = result.secure_url;
             req.body.publicId = result.public_id;
             fs.unlinkSync(path);
