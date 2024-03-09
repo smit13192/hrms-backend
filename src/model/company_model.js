@@ -79,7 +79,6 @@ const companySchema = new Schema({
     timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {
-            delete ret._id;
             delete ret.password;
         },
         virtuals: true,

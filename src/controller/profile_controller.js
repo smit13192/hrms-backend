@@ -5,16 +5,28 @@ const fs = require("fs");
 
 async function editProfile(req, res, next) {
     try {
-        const path = req.file.path;
-        if(path) {
+        const { file }= req;
+        if(file) {
             const result = await cloudinary.uploader.upload(path);
             req.body.profilePic = result.secure_url;
             req.body.publicId = result.public_id;
             fs.unlinkSync(path);
         }
         const id = req.id;
-        const profile = await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: req.body }, { new: true });
-        res.status(200).json({ success: true, data: profile, message: "profile details update successfully" });
+        const profile = await EmployeeModel.findByIdAndUpdate({ _id: id }, { $set: req.body }, { new: true }).populate([{
+            path: 'department'
+        }, {
+            path: 'designation'
+        }, {
+            path: "company",
+            select: {
+                email: 1,
+                logo: 1,
+                name: 1,
+                _id: 1,
+            }
+        }]);
+        res.status(200).json({ statusCode: 200, success: true, data: profile, message: "profile details update successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
