@@ -26,7 +26,7 @@ async function getNotice(req, res, next) {
             companyId = req.user.company;
         }
         const notice = await NoticeModel.find({ companyId });
-        res.status(200).json({ statusCode: 200 ,success: true, date: notice });
+        res.status(200).json({ statusCode: 200 ,success: true, data: notice });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
