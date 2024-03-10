@@ -16,11 +16,23 @@ const leaveSchema = new Schema({
     },
     startDate: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                return value > new Date();
+            },
+            message: 'Start date must be after the current date'
+        }
     },
     endDate: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                return !this.startDate || value > this.startDate;
+            },
+            message: 'End date must be after start date'
+        }
     },
     status: {
         type: String,
