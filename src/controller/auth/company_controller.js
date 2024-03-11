@@ -137,7 +137,7 @@ async function deleteCompany(req, res, next) {
 }
 
 async function viewCompanyOrProfile(req, res, next) {
-    debugger
+  debugger;
   try {
     if (req.role === EMPLOYEE_ROLE) {
       const employee = await EmployeeModel.findById(req.id)

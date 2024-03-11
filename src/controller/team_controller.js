@@ -1,91 +1,107 @@
-const ApiError = require("../utils/error")
-const TeamModel = require("../model/team_model")
+const ApiError = require("../utils/error");
+const TeamModel = require("../model/team_model");
 const { EMPLOYEE_ROLE } = require("../config/string");
-const { teamValidation } = require("../config/joi.validation")
-const moment = require('moment'); 
+const { teamValidation } = require("../config/joi.validation");
+const moment = require("moment");
 
 async function addTeam(req, res, next) {
-    try {
-        req.body.companyId = req.id
+  try {
+    req.body.companyId = req.id;
 
-        const teamValid = teamValidation.validate(req.body)
-        if (teamValid.error) {
-            return next(new ApiError(403, teamValid.error.details[0].message))
-        }
-        const startDate = moment(req.body.startDate);
-        const endDate = moment(req.body.endDate);
-        const totalDays = endDate.diff(startDate, 'days');
-
-        req.body.totalDays = totalDays;
-        const team = new TeamModel(req.body)
-        await team.save()
-        res.status(201).json({ success: true, data: team, message: "team created successfully" })
-    } catch (e) {
-        next(new ApiError(400, e.message))
+    const teamValid = teamValidation.validate(req.body);
+    if (teamValid.error) {
+      return next(new ApiError(403, teamValid.error.details[0].message));
     }
+    const startDate = moment(req.body.startDate);
+    const endDate = moment(req.body.endDate);
+    const totalDays = endDate.diff(startDate, "days");
+
+    req.body.totalDays = totalDays;
+    let team = new TeamModel(req.body);
+    console.log(team,"teamteam")
+    const data = { "id": team.leader, "members": [team.leader] };
+    await team.save();
+    res.status(201).json({
+      success: true,
+      leader: data,
+      message: "team created successfully",
+    });
+  } catch (e) {
+    next(new ApiError(400, e.message));
+  }
 }
 
 async function getTeam(req, res, next) {
-    try {
-        debugger
-        if (req.role === EMPLOYEE_ROLE) {
-            const teams = await TeamModel.find({
-                $or: [
-                    { members: req.id },
-                    { leader: req.id }
-                ]
-            })
-            .populate("projectTitle")
-            .populate({
-                path: "leader",
-                populate: { path: "designation" }
-            })
-            .populate({
-                path: "members",
-                populate: { path: "designation" } 
-            });
-        
-            const workingTeam = teams.filter((data) => data.isWorking === true)
-            res.status(200).json({ success: true, data: workingTeam })
-        }
-        else {
-            const teams = await TeamModel.find({ companyId: req.id }).populate("projectTitle").populate({
-                path: "leader",
-                populate: { path: "designation" }
-            })
-            .populate({
-                path: "members",
-                populate: { path: "designation" } 
-            });
-        
-            const workingTeam = teams.filter((data) => data.isWorking === true)
-            res.status(200).json({ success: true, data: workingTeam })
-        }
-    } catch (e) {
-        next(new ApiError(400, e.message))
+  try {
+    debugger;
+    if (req.role === EMPLOYEE_ROLE) {
+      const teams = await TeamModel.find({
+        $or: [{ members: req.id }, { leader: req.id }],
+      })
+        .populate("projectTitle")
+        .populate({
+          path: "leader",
+          populate: { path: "designation" },
+        })
+        .populate({
+          path: "members",
+          populate: { path: "designation" },
+        });
+
+      const workingTeam = teams.filter((data) => data.isWorking === true);
+      res.status(200).json({ success: true, data: workingTeam });
+    } else {
+      const teams = await TeamModel.find({ companyId: req.id })
+        .populate("projectTitle")
+        .populate({
+          path: "leader",
+          populate: { path: "designation" },
+        })
+        .populate({
+          path: "members",
+          populate: { path: "designation" },
+        });
+
+      const workingTeam = teams.filter((data) => data.isWorking === true);
+      res.status(200).json({ success: true, data: workingTeam });
     }
+  } catch (e) {
+    next(new ApiError(400, e.message));
+  }
 }
 
 async function updateTeam(req, res, next) {
-    try {
-      const startDate = moment(req.body.startDate);
-        const endDate = moment(req.body.endDate);
-        const totalDays = endDate.diff(startDate, 'days');
-        req.body.totalDays = totalDays;
-        const team = await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
-        res.status(200).json({ success: true, data: team, message: "team details  updated successfully" });
-    } catch (e) {
-        next(new ApiError(400, e.message))
-    }
+  try {
+    const startDate = moment(req.body.startDate);
+    const endDate = moment(req.body.endDate);
+    const totalDays = endDate.diff(startDate, "days");
+    req.body.totalDays = totalDays;
+    const team = await TeamModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      { $set: req.body },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      data: team,
+      message: "team details  updated successfully",
+    });
+  } catch (e) {
+    next(new ApiError(400, e.message));
+  }
 }
 
 async function deleteTeam(req, res, next) {
-    try {
-        await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: { isWorking: false } }, { new: true })
-        res.status(200).json({ success: true, message: "team delete sucessfully" })
-    } catch (e) {
-        next(new ApiError(400, e.message))
-    }
+  try {
+    await TeamModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      { $set: { isWorking: false } },
+      { new: true }
+    );
+    res.status(200).json({ success: true, message: "team delete sucessfully" });
+  } catch (e) {
+    next(new ApiError(400, e.message));
+  }
 }
 
-module.exports = { addTeam, getTeam, updateTeam, deleteTeam }
+module.exports = { addTeam, getTeam, updateTeam, deleteTeam };
