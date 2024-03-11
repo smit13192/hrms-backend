@@ -17,7 +17,7 @@ const teamSchema = new Schema({
             ref:"employees",
             required:true
         },
-        members:[{
+        children:[{
             type:Schema.Types.ObjectId,
             ref:"employees",
             required:true

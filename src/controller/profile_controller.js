@@ -4,8 +4,8 @@ const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
 
 async function editProfile(req, res, next) {
-    try {
-        const path = req.file.path;
+    try {debugger
+        const path = req?.file?.path;
         if(path) {
             const result = await cloudinary.uploader.upload(path);
             req.body.profilePic = result.secure_url;

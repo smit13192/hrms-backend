@@ -6,11 +6,11 @@ const leaveSchema = new Schema({
         ref: "employees",
         required: true
     },
-    leaveReason: {
+    leaveTitle: {
         type: String,
         required: true
     },
-    description: {
+    leaveReason: {
         type: String,
         default: null
     },

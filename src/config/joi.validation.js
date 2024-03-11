@@ -88,8 +88,8 @@ const holidayValidation = Joi.object().keys({
 
 const leaveValidation = Joi.object().keys({
     empId: Joi.string().required(),
-    leaveReason: Joi.string().required(),
-    description: Joi.string().allow(null),
+    leaveTitle: Joi.string().required(),
+    leaveReason: Joi.string().allow(null),
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),
     status: Joi.string().valid('pending', 'approved', 'rejected').default('pending')

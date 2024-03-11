@@ -122,8 +122,13 @@ async function deleteCompany(req, res, next) {
 async function viewCompanyOrProfile(req, res, next) {
     try {
         if (req.role === EMPLOYEE_ROLE) {
-            const employee = await EmployeeModel.findById({ _id: req.id }).populate(["department", "designation"]);
+            const employee = await EmployeeModel.findById({ _id: req.id }).populate({
+                path: "department designation company",
+                select: "logo name"
+            });
+            
             res.status(200).json({ statusCode: 200, success: true, data: employee });
+            
         }
         else {
             const id = req.id

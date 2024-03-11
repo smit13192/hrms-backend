@@ -6,10 +6,6 @@ const ProjectModel = require("../model/project_model");
 
 async function addToggleLog(req, res, next) {
     try {
-        const { project } = req.body;
-        if (!project) return next(new ApiError(400, "Project is required"));
-        const employeeContainProject = await ProjectModel.findOne({ employees: req.id, _id: project });
-        if (!employeeContainProject) return next(new ApiError(400, "You can not access this project log"));
         req.body.empId = req.id
         const toggle = new ToggleLogModel(req.body)
         await toggle.save()
@@ -54,7 +50,7 @@ async function getToggleLog(req, res, next) {
 
 async function updateToggleLog(req, res, next) {
     try {
-        const toggle = await ToggleLogModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { newmm: true })
+        const toggle = await ToggleLogModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true })
         res.status(200).json({ statusCode: 200, success: true, data: toggle, message: "toggle updated successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))

@@ -1,16 +1,16 @@
 const ApiError = require("../utils/error")
 const TeamModel = require("../model/team_model")
 const { EMPLOYEE_ROLE } = require("../config/string");
-const { teamValidation } = require("../config/joi.validation")
+// const { teamValidation } = require("../config/joi.validation")
 
 async function addTeam(req, res, next) {
     try {
         req.body.companyId = req.id
 
-        const teamValid = teamValidation.validate(req.body)
-        if (teamValid.error) {
-            return next(new ApiError(403, teamValid.error.details[0].message))
-        }
+        // const teamValid = teamValidation.validate(req.body)
+        // if (teamValid.error) {
+        //     return next(new ApiError(403, teamValid.error.details[0].message))
+        // }
 
         const team = new TeamModel(req.body)
         await team.save()
@@ -26,7 +26,7 @@ async function getTeam(req, res, next) {
         if (req.role === EMPLOYEE_ROLE) {
             const teams = await TeamModel.find({
                 $or: [
-                    { members: req.id },
+                    { children: req.id },
                     { "leader.leaderId": req.id }
                 ]
             })
@@ -39,7 +39,7 @@ async function getTeam(req, res, next) {
                 ]
             })
             .populate({
-                path: "leader.members",
+                path: "leader.children",
                 populate:[ { path: "designation" } ,  { path: "department" }]
             });
         
@@ -54,7 +54,7 @@ async function getTeam(req, res, next) {
                     populate:[ { path: "designation" } ,  { path: "department" }]
                 })
                 .populate({
-                    path: "leader.members",
+                    path: "leader.children",
                     populate:[ { path: "designation" } ,  { path: "department" }]
                 });
             
