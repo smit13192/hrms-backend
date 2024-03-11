@@ -1,110 +1,8 @@
 const ApiError = require("../utils/error")
 const ProjectModel = require("../model/project_model")
 const { projectValidation } = require("../config/joi.validation");
+const EmployeeModel = require("../model/employee_model");
 const { EMPLOYEE_ROLE } = require("../config/string");
-const { Types } = require("mongoose");
-
-const projectPipeline = [
-    {
-        $lookup: {
-            from: 'employees',
-            localField: 'leader',
-            foreignField: '_id',
-            as: 'leader',
-            pipeline: [
-                {
-                    $lookup: {
-                        from: 'designations',
-                        localField: 'designation',
-                        foreignField: '_id',
-                        as: 'designation',
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'departments',
-                        localField: 'department',
-                        foreignField: '_id',
-                        as: 'department',
-                    }
-                },
-                {
-                    $project: {
-                        _id: true,
-                        firstName: true,
-                        middleName: true,
-                        lastName: true,
-                        email: true,
-                        profilePic: true,
-                        mobileNo: true,
-                        gender: true,
-                        department: {
-                            $first: "$department"
-                        },
-                        designation: {
-                            $first: "$designation"
-                        },
-                        isWorking: true,
-                        doj: true,
-                    }
-                }
-            ]
-        }
-    },
-    {
-        $lookup: {
-            from: 'employees',
-            localField: 'employees',
-            foreignField: '_id',
-            as: 'employees',
-            pipeline: [
-                {
-                    $lookup: {
-                        from: 'designations',
-                        localField: 'designation',
-                        foreignField: '_id',
-                        as: 'designation',
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'departments',
-                        localField: 'department',
-                        foreignField: '_id',
-                        as: 'department',
-                    }
-                },
-                {
-                    $project: {
-                        _id: true,
-                        firstName: true,
-                        middleName: true,
-                        lastName: true,
-                        email: true,
-                        profilePic: true,
-                        mobileNo: true,
-                        gender: true,
-                        department: {
-                            $first: "$department"
-                        },
-                        designation: {
-                            $first: "$designation"
-                        },
-                        isWorking: true,
-                        doj: true,
-                    }
-                }
-            ]
-        }
-    },
-    {
-        $addFields: {
-            leader: {
-                $first: "$leader"
-            }
-        }
-    }
-];
 
 async function addProject(req, res, next) {
     try {
@@ -123,50 +21,42 @@ async function addProject(req, res, next) {
 
 async function getProject(req, res, next) {
     try {
+       
+        let companyId = req.id;
         if (req.role === EMPLOYEE_ROLE) {
-            projectPipeline.unshift({
-                $match: {
-                    employees: new Types.ObjectId(req.id)
-                }
-            });
-            const projects = await ProjectModel.aggregate(projectPipeline).exec();
-            return res.status(200).json({ statusCode: 200, success: true, data: projects });
+            companyId = await EmployeeModel.getCompanyId(req.id);
         }
-        projectPipeline.unshift({
-            $match: {
-                companyId: new Types.ObjectId(req.id),
-            }
-        });
-        const projects = await ProjectModel.aggregate(projectPipeline).exec();
-        res.status(200).json({ statusCode: 200, success: true, data: projects });
+        const projects = await ProjectModel.find({ companyId });
+        const workingProject = projects.filter((data) => data.isWorking == true)
+        res.status(200).json({ success: true, data: workingProject });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
 }
 
 async function getOneProject(req, res, next) {
-    try {
-        if (req.role === EMPLOYEE_ROLE) {
-            projectPipeline.unshift({
-                $match: {
-                    employees: new Types.ObjectId(req.id),
-                    _id: new Types.ObjectId(req.params.id)
-                }
-            });
-            const projects = await ProjectModel.aggregate(projectPipeline);
-            return res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
-        }
-        projectPipeline.unshift({
-            $match: {
-                companyId: new Types.ObjectId(req.id),
-                _id: new Types.ObjectId(req.params.id)
-            }
-        });
-        const projects = await ProjectModel.aggregate(projectPipeline);
-        res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
-    } catch (e) {
-        next(new ApiError(400, e.message));
-    }
+//     try {
+//         if (req.role === EMPLOYEE_ROLE) {
+//             projectPipeline.unshift({
+//                 $match: {
+//                     employees: new Types.ObjectId(req.id),
+//                     _id: new Types.ObjectId(req.params.id)
+//                 }
+//             });
+//             const projects = await ProjectModel.aggregate(projectPipeline);
+//             return res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
+//         }
+//         projectPipeline.unshift({
+//             $match: {
+//                 companyId: new Types.ObjectId(req.id),
+//                 _id: new Types.ObjectId(req.params.id)
+//             }
+//         });
+//         const projects = await ProjectModel.aggregate(projectPipeline);
+//         res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
+//     } catch (e) {
+//         next(new ApiError(400, e.message));
+//     }
 }
 
 async function updateProject(req, res, next) {

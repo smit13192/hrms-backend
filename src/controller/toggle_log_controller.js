@@ -6,10 +6,6 @@ const ProjectModel = require("../model/project_model");
 
 async function addToggleLog(req, res, next) {
     try {
-        const { project } = req.body;
-        if (!project) return next(new ApiError(400, "Project is required"));
-        const employeeContainProject = await ProjectModel.findOne({ employees: req.id, _id: project });
-        if (!employeeContainProject) return next(new ApiError(400, "You can not access this project log"));
         req.body.empId = req.id
         const toggle = new ToggleLogModel(req.body)
         await toggle.save()
@@ -38,28 +34,14 @@ async function getToggleLog(req, res, next) {
         }
 
         if (req.role === COMPANY_ROLE) {
-            const populateFields = {
-                path: "empId",
-                populate: ["designation", "department"],
-                select: {
-                    email: true,
-                    firstName: true,
-                    middleName: true,
-                    lastName: true,
-                    profilePic: true,
-                    mobileNo: true,
-                    gender: true,
-                    isWorking: true,
-                    designation: true,
-                    department: true,
-                }
-            };
-            const toggle = await ToggleLogModel.find({ project: req.params.id, ...filter }).populate(populateFields);
-            res.status(200).json({ statusCode: 200, success: true, data: toggle });
+            const employees = await EmployeeModel.find({ company: req.id });
+            const employeeId = employees.map((e) => e._id);
+            const toggle = await ToggleLogModel.find({ empId: { $in: employeeId } }).populate("project").populate("tags");
+            res.status(200).json({ success: true, data: toggle });
         }
         else {
-            const toggles = await ToggleLogModel.find({ empId: req.id, ...filter })
-            res.status(200).json({ statusCode: 200, success: true, data: toggles })
+            const toggles = await ToggleLogModel.find({ empId: req.id }).populate("project").populate("tags");
+            res.status(200).json({ success: true, data: toggles })
         }
     } catch (e) {
         next(new ApiError(400, e.message))
@@ -68,7 +50,7 @@ async function getToggleLog(req, res, next) {
 
 async function updateToggleLog(req, res, next) {
     try {
-        const toggle = await ToggleLogModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { newmm: true })
+        const toggle = await ToggleLogModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true })
         res.status(200).json({ statusCode: 200, success: true, data: toggle, message: "toggle updated successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))

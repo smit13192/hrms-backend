@@ -11,17 +11,23 @@ const teamSchema = new Schema({
         ref: "project",
         required: true
     },
-    leader: {
-        type: Schema.Types.ObjectId,
-        ref: "employees",
-        required: true
+    leader:{
+        leaderId:{
+            type:Schema.Types.ObjectId,
+            ref:"employees",
+            required:true
+        },
+        children:[{
+            type:Schema.Types.ObjectId,
+            ref:"employees",
+            required:true
+        }],
     },
-    members: [{
-        type: Schema.Types.ObjectId,
-        ref: "employees",
-        required: true
-    }]
-}, {
+    isWorking:{
+        type:Boolean,
+        default:true
+    }
+},{
     timestamps: true,
     toJSON: {
         virtuals: true,

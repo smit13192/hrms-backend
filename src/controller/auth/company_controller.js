@@ -135,6 +135,7 @@ async function viewCompanyOrProfile(req, res, next) {
                 }
             }]);
             res.status(200).json({ statusCode: 200, success: true, data: employee });
+            
         }
         else {
             const id = req.id

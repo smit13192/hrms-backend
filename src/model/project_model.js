@@ -28,15 +28,7 @@ const projectSchema = new Schema({
         ref: "companies",
         required: true
     },
-    leader: {
-        type: Schema.Types.ObjectId,
-        ref: 'employees',
-        required: true
-    },
-    employees: {
-        type: [{ type: Schema.Types.ObjectId, ref: 'employees' }],
-        default: []
-    },
+
     isWorking: {
         type: Boolean,
         default: true

@@ -25,8 +25,8 @@ async function dashboard(req, res, next) {
         const numberOfPresentEmp = presentEmployees.filter(Boolean).length
         const numberOfAbsentEmp = presentEmployees.filter(emp => emp === null).length
 
-        const numberOfProjects = await ProjectModel.find({ companyId: req.id }).countDocuments();
-
+        const projects = await ProjectModel.find({ companyId: req.id, status: "running" })
+        const numberOfProjects = projects.filter(Object).length
         res.status(200).json({ statusCode: 200, success: true, numberOfPresentEmp, numberOfAbsentEmp, numberOfProjects, date: currentDateWithoutTime })
 
     } catch (e) {

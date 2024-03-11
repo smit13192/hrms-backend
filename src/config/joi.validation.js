@@ -89,8 +89,8 @@ const holidayValidation = Joi.object().keys({
 
 const leaveValidation = Joi.object().keys({
     empId: Joi.string().required(),
-    leaveReason: Joi.string().required(),
-    description: Joi.string().allow(null),
+    leaveTitle: Joi.string().required(),
+    leaveReason: Joi.string().allow(null),
     startDate: Joi.date().required(),
     endDate: Joi.date().required(),
     status: Joi.string().valid('pending', 'approved', 'rejected').default('pending')
@@ -110,9 +110,14 @@ const projectValidation = Joi.object().keys({
     status: Joi.string().valid('upcoming', 'complete', 'running').default('upcoming'),
     returnDate: Joi.date().allow(null),
     companyId: Joi.string().required(),
-    leader: Joi.string().required(),
-    employees: Joi.array(),
-    isWorking: Joi.boolean().default(true)
+    projectTitle: Joi.string().required(),
+    startDate: Joi.date().allow(null),
+    endDate: Joi.date().allow(null),
+    days: Joi.number().integer().min(0),
+    leader: Joi.object({
+        leaderId: Joi.string().required(),
+        members: Joi.array().items(Joi.string().required()).required()
+    }).required(),
 });
 
 module.exports = {
