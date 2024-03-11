@@ -10,6 +10,10 @@ const userlogSchema = new Schema({
         type: Date,
         required: true
     },
+    isLogout: {
+        type: Boolean,
+        default: false,
+    },
     timeBlock: [{
         startTime: {
             type: Date,

@@ -4,6 +4,7 @@ const CompanyModel = require("../model/company_model")
 const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string")
 const { createToken } = require("../authentication/jwt_token")
 const EmployeeModel = require("../model/employee_model")
+const UserlogModel = require("../model/userlog_model")
 
 async function login(req, res, next) {
     try {
@@ -60,4 +61,40 @@ async function employeeLogin(req, res, next) {
     }
 }
 
-module.exports = { login, employeeLogin }
+async function logout(req, res, next) {
+    try {
+        const id = req.id;
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const day = currentDate.getDate();
+
+        const currentDateWithoutTime = new Date(year, month, day);
+
+        const userlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
+        if (!userlog) {
+            return next(new ApiError(400, "You cannot start your timer today that's not logout today"));
+        }
+        if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime !== null) {
+            userlog.isLogout = true;
+            await userlog.save();
+        }
+        if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime === null) {
+            userlog.timeBlock[userlog.timeBlock.length - 1].endTime = currentDate;
+            userlog.isLogout = true;
+            await userlog.save();
+        }
+        return res
+            .status(200)
+            .json({
+                statusCode: 200,
+                success: true,
+                message: "Log out successfully"
+            });
+    } catch (error) {
+        next(new ApiError(400, error.message))
+    }
+}
+
+module.exports = { login, employeeLogin, logout }

@@ -58,6 +58,16 @@ const employeeSchema = new Schema({
         type: Boolean,
         default: true,
     },
+    salary: {
+        type: Number,
+        required: true,
+        validate: {
+            validator: function(value) {
+                return value >= 0;
+            },
+            message: 'Salary must be a positive number'
+        }
+    },
     doj: {
         type: Date,
         required: true,

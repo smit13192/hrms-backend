@@ -13,6 +13,11 @@ async function startTime(req, res, next) {
         const currentDateWithoutTime = new Date(year, month, day);
 
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
+
+        if(findCurrentDateUserlog.isLogout) {
+            return next(new ApiError(400, "After logout you can not start timer"));
+        }
+        
         if (findCurrentDateUserlog) {
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
                 findCurrentDateUserlog.timeBlock.push({ startTime: currentDate, endTime: null });
@@ -45,6 +50,7 @@ async function stopTime(req, res, next) {
         const currentDateWithoutTime = new Date(year, month, day);
 
         const userlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
+
         if (!userlog) {
             return next(new ApiError(400, "Start timer first"));
         }
@@ -204,4 +210,85 @@ async function getUserLog(req, res, next) {
     }
 }
 
-module.exports = { startTime, stopTime, reportingTime, getUserLog };
+async function totalWorkingHours(req, res, next) {
+    try {
+        const empId = req.id;
+        const currentDate = new Date();
+
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth() + 1;
+
+        if (req.query.year && !isNaN(req.query.year)) year = parseInt(req.query.year);
+        if (req.query.month && !isNaN(req.query.month)) month = parseInt(req.query.month);
+
+        const data = await UserlogModel.aggregate([
+            {
+                $match: {
+                    $expr: {
+                        $and: [
+                            { $eq: [{ $year: '$date' }, year] },
+                            { $eq: [{ $month: '$date' }, month] },
+                            { $eq: ["$empId", new mongoose.Types.ObjectId(empId)] }
+                        ]
+                    },
+                },
+            },
+            {
+                $unwind: "$timeBlock"
+            },
+            {
+                $group: {
+                    _id: "$date",
+                    totalDuration: {
+                        $sum: {
+                            $cond: {
+                                if: { $eq: ['$timeBlock.endTime', null] },
+                                then: { $subtract: [new Date(), '$timeBlock.startTime'] },
+                                else: { $subtract: ['$timeBlock.endTime', '$timeBlock.startTime'] }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    date: '$_id',
+                    totalDurationInSeconds: {
+                        $floor: { $divide: ['$totalDuration', 1000] }
+                    },
+                    seconds: {
+                        $floor: { $mod: [{ $divide: ['$totalDuration', 1000] }, 60] }
+                    },
+                    minutes: {
+                        $floor: { $mod: [{ $divide: ['$totalDuration', 60000] }, 60] }
+                    },
+                    hours: {
+                        $floor: { $divide: ['$totalDuration', 3600000] }
+                    }
+
+                }
+            },
+            {
+                $sort: {
+                    date: 1
+                }
+            }
+        ]).exec()
+
+        let totalSecond = 0;
+        for (const e of data) {
+            totalSecond += e.totalDurationInSeconds;
+        }
+        let hours = Math.floor(totalSecond / 3600);
+        let minute = Math.floor((totalSecond / 60) % 60);
+        res.status(200).json({ statusCode: 200, success: true, data: {
+            hours,
+            minute
+        } })
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+
+module.exports = { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours };

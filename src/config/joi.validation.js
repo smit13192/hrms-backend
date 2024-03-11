@@ -43,6 +43,7 @@ const employeeValidation = Joi.object().keys({
     department: Joi.string().required(),
     designation: Joi.string().required(),
     isWorking: Joi.boolean().default(true),
+    salary: Joi.number().required(),
     doj: Joi.date().required(),
     dob: Joi.date().allow(null),
     dol: Joi.date().allow(null),
