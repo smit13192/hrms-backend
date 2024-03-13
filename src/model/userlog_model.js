@@ -23,9 +23,6 @@ const userlogSchema = new Schema({
 }, {
     timestamps: true,
     toJSON: {
-        transform: (_doc, ret, _option) => {
-            delete ret._id;
-        },
         virtuals: true,
         versionKey: false,
     }

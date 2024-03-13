@@ -17,7 +17,7 @@ async function startTime(req, res, next) {
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
                 findCurrentDateUserlog.timeBlock.push({ startTime: currentDate, endTime: null });
                 await findCurrentDateUserlog.save();
-                return res.status(200).json({ success: true, message: "Time start" })
+                return res.status(201).json({ statusCode: 201, success: true, message: "Time start" })
             }
             return next(new ApiError(400, "First time stop then start time"));
         }
@@ -27,7 +27,7 @@ async function startTime(req, res, next) {
             timeBlock: [{ startTime: currentDate, endTime: null }]
         })
         await checkIn.save()
-        res.status(201).json({ success: true, message: "Time start" })
+        res.status(201).json({ statusCode: 201, success: true, message: "Time start" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -48,6 +48,9 @@ async function stopTime(req, res, next) {
         if (!userlog) {
             return next(new ApiError(400, "Start timer first"));
         }
+        if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime !== null) {
+            return next(new ApiError(400, "Start timer first"));
+        }
         if (userlog.timeBlock[userlog.timeBlock.length - 1].endTime === null) {
             userlog.timeBlock[userlog.timeBlock.length - 1].endTime = currentDate;
             await userlog.save();
@@ -55,6 +58,7 @@ async function stopTime(req, res, next) {
         return res
             .status(200)
             .json({
+                statusCode: 200,
                 success: true,
                 message: "Time stop"
             });
@@ -78,32 +82,34 @@ async function reportingTime(req, res, next) {
         const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
         if (findUserLog) {
             for (let i = 0; i < findUserLog.timeBlock.length; i++) {
-                time += Math.floor(((findUserLog.timeBlock[i].endTime ?? currentDate) - findUserLog.timeBlock[i].startTime) / 1000);
+                time += Math.floor((findUserLog.timeBlock[i].endTime ?? currentDate) - findUserLog.timeBlock[i].startTime);
             }
             if (findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime === null) {
                 return res.
                     status(200).
                     json({
+                        statusCode: 200,
                         success: true,
                         data: {
                             isTotalTimeRunning: true,
-                            totalReportingTime: time,
-                            hours: Math.floor(time / (60 * 60)),
-                            minutes: Math.floor((time % (60 * 60)) / 60),
-                            seconds: Math.floor(time % 60),
+                            totalReportingTime: Math.floor(time / 1000),
+                            hours: Math.floor(time / 3600000),
+                            minutes: Math.floor((time / 60000) % 60),
+                            seconds: Math.floor((time / 1000) % 60),
                         }
                     });
             } else {
                 return res.
                     status(200).
                     json({
+                        statusCode: 200,
                         success: true,
                         data: {
                             isTotalTimeRunning: false,
-                            totalReportingTime: time,
-                            hours: Math.floor(time / (60 * 60)),
-                            minutes: Math.floor((time % (60 * 60)) / 60),
-                            seconds: Math.floor(time % 60),
+                            totalReportingTime: Math.floor(time / 1000),
+                            hours: Math.floor(time / 3600000),
+                            minutes: Math.floor((time / 60000) % 60),
+                            seconds: Math.floor((time / 1000) % 60),
                         }
                     });
             }
@@ -111,13 +117,14 @@ async function reportingTime(req, res, next) {
             return res.
                 status(200).
                 json({
+                    statusCode: 200,
                     success: true,
                     data: {
                         isTotalTimeRunning: false,
-                        totalReportingTime: time,
-                        hours: Math.floor(time / (60 * 60)),
-                        minutes: Math.floor((time % (60 * 60)) / 60),
-                        seconds: Math.floor(time % 60),
+                        totalReportingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
                     }
                 });
         }
@@ -131,8 +138,11 @@ async function getUserLog(req, res, next) {
         const empId = req.id;
         const currentDate = new Date();
 
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth() + 1;
+
+        if (req.query.year && !isNaN(req.query.year)) year = parseInt(req.query.year);
+        if (req.query.month && !isNaN(req.query.month)) month = parseInt(req.query.month);
 
         const data = await UserlogModel.aggregate([
             {
@@ -140,7 +150,7 @@ async function getUserLog(req, res, next) {
                     $expr: {
                         $and: [
                             { $eq: [{ $year: '$date' }, year] },
-                            { $eq: [{ $month: '$date' }, month + 1] },
+                            { $eq: [{ $month: '$date' }, month] },
                             { $eq: ["$empId", new mongoose.Types.ObjectId(empId)] }
                         ]
                     },
@@ -188,7 +198,7 @@ async function getUserLog(req, res, next) {
                 }
             }
         ]).exec()
-        res.status(200).json({ success: true, data: data })
+        res.status(200).json({ statusCode: 200, success: true, data: data })
     } catch (e) {
         next(new ApiError(400, e.message))
     }

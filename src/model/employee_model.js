@@ -35,12 +35,13 @@ const employeeSchema = new Schema({
         default: null,
     },
     mobileNo: {
-        type: Number,
+        type: String,
         required: true,
     },
     gender: {
         type: String,
         required: true,
+        enum: ["Male", "Female"]
     },
     department: {
         type: Schema.Types.ObjectId,
@@ -128,7 +129,6 @@ const employeeSchema = new Schema({
     timestamps: true,
     toJSON: {
         transform: (_doc, ret, _option) => {
-            delete ret._id;
             delete ret.password;
         },
         virtuals: true,
@@ -142,12 +142,10 @@ employeeSchema.pre("save", function (next) {
     }
     next();
 });
-
 employeeSchema.statics.getCompanyId = async function (employeeId) {
     const employee = await EmployeeModel.findById(employeeId).select(["company"]);
     return employee.company;
 };
-
 const EmployeeModel = model("employees", employeeSchema);
 
 module.exports = EmployeeModel;

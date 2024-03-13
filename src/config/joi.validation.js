@@ -27,6 +27,7 @@ const employeeValidation = Joi.object().keys({
     company: Joi.string().required(),
     firstName: Joi.string().required(),
     middleName: Joi.string(),
+    middleName: Joi.string(),
     lastName: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -76,24 +77,24 @@ const holidayValidation = Joi.object().keys({
     startDate: Joi.date().required(),
     endDate: Joi.date().allow(null,''),
     holidayType: Joi.string().required(),
-    description: Joi.string().allow(null,""),
+    description: Joi.string().allow('',null),
     companyId: Joi.string().required()
 });
 
 const leaveValidation = Joi.object().keys({
     empId: Joi.string().required(),
     leaveTitle: Joi.string().required(),
-    leaveReason: Joi.string().required(),
+    leaveReason: Joi.string().allow(null),
     startDate: Joi.date().required(),
-    endDate: Joi.date().allow(null),
-    status: Joi.string().valid("pending", "approved", "rejected").default("pending"),
+    endDate: Joi.date().required(),
+    status: Joi.string().valid('pending', 'approved', 'rejected').default('pending')
 });
 
 const noticeValidation = Joi.object().keys({
     companyId: Joi.string().required(),
     title: Joi.string().required(),
-    description: Joi.string().required(),
-    date: Joi.date().default(Date.now()),
+    description: Joi.string(),
+    date: Joi.date().default(Date.now())
 });
 
 const projectValidation = Joi.object().keys({
@@ -103,16 +104,14 @@ const projectValidation = Joi.object().keys({
     status: Joi.string().valid("upcoming", "complete", "running").default("upcoming"),
     returnDate: Joi.date().allow(null),
     companyId: Joi.string().required(),
-});
-
-const teamValidation = Joi.object({
-    companyId: Joi.string().required(),
     projectTitle: Joi.string().required(),
     startDate: Joi.date().allow(null),
     endDate: Joi.date().allow(null),
     days: Joi.number().integer().min(0),
-    leader: Joi.string().required(),
-    members: Joi.array().items(Joi.string().required()).required(),
+    leader: Joi.object({
+        leaderId: Joi.string().required(),
+        members: Joi.array().items(Joi.string().required()).required()
+    }).required(),
 });
 
 module.exports = {
@@ -124,6 +123,5 @@ module.exports = {
     holidayValidation,
     leaveValidation,
     noticeValidation,
-    projectValidation,
-    teamValidation,
-};
+    projectValidation
+}

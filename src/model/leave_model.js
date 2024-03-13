@@ -6,13 +6,13 @@ const leaveSchema = new Schema({
         ref: "employees",
         required: true
     },
-    leaveTitle:{
+    leaveTitle: {
         type: String,
         required: true
     },
     leaveReason: {
         type: String,
-        required: true
+        default: null
     },
     startDate: {
         type: Date,
@@ -20,7 +20,7 @@ const leaveSchema = new Schema({
     },
     endDate: {
         type: Date,
-        default: null
+        required: true
     },
     status: {
         type: String,
@@ -30,9 +30,6 @@ const leaveSchema = new Schema({
 }, {
     timestamps: true,
     toJSON: {
-        transform: (_doc, ret, _option) => {
-            delete ret._id;
-        },
         virtuals: true,
         versionKey: false,
     }
