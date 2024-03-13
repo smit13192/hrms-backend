@@ -109,15 +109,7 @@ const projectValidation = Joi.object().keys({
     clientName: Joi.string().required(),
     status: Joi.string().valid('upcoming', 'complete', 'running').default('upcoming'),
     returnDate: Joi.date().allow(null),
-    companyId: Joi.string().required(),
-    projectTitle: Joi.string().required(),
-    startDate: Joi.date().allow(null),
-    endDate: Joi.date().allow(null),
-    days: Joi.number().integer().min(0),
-    leader: Joi.object({
-        leaderId: Joi.string().required(),
-        members: Joi.array().items(Joi.string().required()).required()
-    }).required(),
+    companyId: Joi.string().required()
 });
 
 module.exports = {
