@@ -14,7 +14,7 @@ async function addTeam(req, res, next) {
 
         const team = new TeamModel(req.body)
         await team.save()
-        res.status(201).json({ statusCode: 201 , success: true, data: team, message: "team created successfully" })
+        res.status(201).json({ statusCode: 201, success: true, data: team, message: "team created successfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -69,7 +69,7 @@ async function getTeam(req, res, next) {
 async function updateTeam(req, res, next) {
     try {
         const team = await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
-        res.status(200).json({ statusCode: 200 ,success: true, data: team, message: "team details updated successfully" });
+        res.status(200).json({ statusCode: 200, success: true, data: team, message: "team details updated successfully" });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -78,7 +78,7 @@ async function updateTeam(req, res, next) {
 async function deleteTeam(req, res, next) {
     try {
         await TeamModel.findByIdAndUpdate({ _id: req.params.id }, { $set: { isWorking: false } }, { new: true })
-        res.status(200).json({ statusCode: 200 ,success: true, message: "team delete sucessfully" })
+        res.status(200).json({ statusCode: 200, success: true, message: "team delete sucessfully" })
     } catch (e) {
         next(new ApiError(400, e.message))
     }

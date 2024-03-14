@@ -6,7 +6,7 @@ const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string")
 const router = Router()
 
 router.post("/add", verifyUser(EMPLOYEE_ROLE), addToggleLog)
-router.get("/", verifyUser(EMPLOYEE_ROLE), getToggleLog)
+router.get("/", verifyUser([EMPLOYEE_ROLE,COMPANY_ROLE]), getToggleLog)
 router.get("/:id", verifyUser(COMPANY_ROLE), getToggleLog)
 router.put("/update/:id", verifyUser(EMPLOYEE_ROLE), updateToggleLog)
 router.delete("/delete/:id", verifyUser(EMPLOYEE_ROLE), deleteToggleLog)
