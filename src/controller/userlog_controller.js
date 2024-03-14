@@ -14,11 +14,12 @@ async function startTime(req, res, next) {
 
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
-        if(findCurrentDateUserlog.isLogout) {
-            return next(new ApiError(400, "After logout you can not start timer"));
-        }
+        
         
         if (findCurrentDateUserlog) {
+            if(findCurrentDateUserlog.isLogout) {
+                return next(new ApiError(400, "After logout you can not start timer"));
+            }
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
                 findCurrentDateUserlog.timeBlock.push({ startTime: currentDate, endTime: null });
                 await findCurrentDateUserlog.save();
