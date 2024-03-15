@@ -1,5 +1,6 @@
 const ApiError = require("../utils/error")
 const UserlogModel = require("../model/userlog_model")
+const LeaveModel = require("../model/leave_model")
 const mongoose = require("mongoose")
 
 async function startTime(req, res, next) {
@@ -12,12 +13,15 @@ async function startTime(req, res, next) {
 
         const currentDateWithoutTime = new Date(year, month, day);
 
+        const findLeave = await LeaveModel.findOne({ empId: req.id, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+
+        if(findLeave) {
+            return next(new ApiError(400, "Your leave day you cannot start timer"));
+        }
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
-        
-        
         if (findCurrentDateUserlog) {
-            if(findCurrentDateUserlog.isLogout) {
+            if (findCurrentDateUserlog.isLogout) {
                 return next(new ApiError(400, "After logout you can not start timer"));
             }
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
@@ -103,6 +107,7 @@ async function reportingTime(req, res, next) {
                             hours: Math.floor(time / 3600000),
                             minutes: Math.floor((time / 60000) % 60),
                             seconds: Math.floor((time / 1000) % 60),
+                            isLogout: findUserLog.isLogout,
                         }
                     });
             } else {
@@ -117,6 +122,7 @@ async function reportingTime(req, res, next) {
                             hours: Math.floor(time / 3600000),
                             minutes: Math.floor((time / 60000) % 60),
                             seconds: Math.floor((time / 1000) % 60),
+                            isLogout: findUserLog.isLogout,
                         }
                     });
             }
@@ -132,9 +138,90 @@ async function reportingTime(req, res, next) {
                         hours: Math.floor(time / 3600000),
                         minutes: Math.floor((time / 60000) % 60),
                         seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
                     }
                 });
         }
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+async function breakingTime(req, res, next) {
+    try {
+        const id = req.id;
+        let time = 0;
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const day = currentDate.getDate();
+
+        const currentDateWithoutTime = new Date(year, month, day);
+
+        const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
+        if (!findUserLog) {
+            return res.status(200).json({
+                statusCode: 200,
+                success: true,
+                data: {
+                    isBreakingTimeRunning: false,
+                    totalBreakingTime: 0,
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0,
+                }
+            })
+        }
+        for (let i = 0; i < findUserLog.timeBlock.length - 1; i++) {
+            time += Math.floor((findUserLog.timeBlock[i + 1].startTime ?? currentDate) - findUserLog.timeBlock[i].endTime);
+        }
+        if (findUserLog.isLogout) {
+            return res.
+                status(200).
+                json({
+                    statusCode: 200,
+                    success: true,
+                    data: {
+                        isBreakingTimeRunning: false,
+                        totalBreakingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
+                    }
+                });
+        }
+        if (findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime == null) {
+            return res.
+                status(200).
+                json({
+                    statusCode: 200,
+                    success: true,
+                    data: {
+                        isBreakingTimeRunning: false,
+                        totalBreakingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
+                    }
+                });
+        }
+        time += (currentDate - findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime);
+        return res.
+            status(200).
+            json({
+                statusCode: 200,
+                success: true,
+                data: {
+                    isBreakingTimeRunning: true,
+                    totalBreakingTime: Math.floor(time / 1000),
+                    hours: Math.floor(time / 3600000),
+                    minutes: Math.floor((time / 60000) % 60),
+                    seconds: Math.floor((time / 1000) % 60),
+                    isLogout: false,
+                }
+            });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -283,13 +370,15 @@ async function totalWorkingHours(req, res, next) {
         }
         let hours = Math.floor(totalSecond / 3600);
         let minute = Math.floor((totalSecond / 60) % 60);
-        res.status(200).json({ statusCode: 200, success: true, data: {
-            hours,
-            minute
-        } })
+        res.status(200).json({
+            statusCode: 200, success: true, data: {
+                hours,
+                minute
+            }
+        })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
 }
 
-module.exports = { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours };
+module.exports = { startTime, stopTime, reportingTime, breakingTime, getUserLog, totalWorkingHours };
