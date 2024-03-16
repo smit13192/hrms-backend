@@ -36,6 +36,7 @@ async function getLeave(req, res, next) {
     }
 }
 
+//you only update leave when leave start date is greater than today's date and status is pending
 async function updateLeave(req, res, next) {
     try {
         const leave = await LeaveModel.findOneAndUpdate({ _id: req.params.id, status: 'pending' }, { $set: req.body }, { new: true, runValidators: true });
@@ -48,6 +49,7 @@ async function updateLeave(req, res, next) {
     }
 }
 
+//only delete leave when leave start date is greater than today's date and status is pending
 async function deleteLeave(req, res, next) {
     try {
         const leaveId = req.params.id;

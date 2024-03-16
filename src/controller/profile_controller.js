@@ -3,6 +3,7 @@ const EmployeeModel = require("../model/employee_model")
 const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
 
+//emplooye
 async function editProfile(req, res, next) {
     try {
         const { file }= req;
@@ -32,9 +33,10 @@ async function editProfile(req, res, next) {
     }
 }
 
+//company
 async function addOrUpdateProfile(req, res, next) {
     try {
-        const path = req.file.path;
+        const path = req?.file?.path;
         if (path) {
             const result = await cloudinary.uploader.upload(path);
             req.body.profilePic = result.secure_url;
