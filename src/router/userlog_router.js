@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours, attendance } = require("../controller/userlog_controller")
+const { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours, attendance, breakingTime } = require("../controller/userlog_controller")
 const { EMPLOYEE_ROLE, COMPANY_ROLE } = require("../config/string")
 const { verifyUser } = require("../middleware/verify_user")
 

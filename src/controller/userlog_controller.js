@@ -2,7 +2,6 @@ const ApiError = require("../utils/error")
 const UserlogModel = require("../model/userlog_model")
 const LeaveModel = require("../model/leave_model")
 const mongoose = require("mongoose")
-const mongoose = require("mongoose");
 const { COMPANY_ROLE } = require("../config/string");
 const HolidayModel = require("../model/holiday_model");
 const moment = require("moment");
@@ -19,8 +18,14 @@ async function startTime(req, res, next) {
 
         const findLeave = await LeaveModel.findOne({ empId: req.id, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
 
-        if(findLeave) {
+        if (findLeave) {
             return next(new ApiError(400, "Your leave day you cannot start timer"));
+        }
+
+        const findHoliday = await HolidayModel.findOne({ companyId: req.user.company, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+
+        if (findHoliday) {
+            return next(new ApiError(400, "In Holiday you can not start timer"));
         }
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
@@ -173,6 +178,7 @@ async function breakingTime(req, res, next) {
                     hours: 0,
                     minutes: 0,
                     seconds: 0,
+                    isLogout: false
                 }
             })
         }
@@ -458,8 +464,8 @@ async function attendance(req, res, next) {
 
         while (monthStartDate <= endDate) {
             let formattedStartDate = monthStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
-            if (!dates.some(date => moment(date).isSame(formattedStartDate, 'day'))) { 
-                absentDates.push(monthStartDate.toDate()); 
+            if (!dates.some(date => moment(date).isSame(formattedStartDate, 'day'))) {
+                absentDates.push(monthStartDate.toDate());
             }
             monthStartDate.add(1, 'day');
         }
@@ -491,4 +497,4 @@ function getDatesBetween(startDate, endDate) {
     return dates;
 }
 
-module.exports = { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours, attendance };
+module.exports = { startTime, stopTime, reportingTime, breakingTime, getUserLog, totalWorkingHours, attendance };
