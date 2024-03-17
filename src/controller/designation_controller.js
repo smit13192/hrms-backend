@@ -22,7 +22,7 @@ async function addDesignation(req, res, next) {
 
 async function getDesignation(req, res, next) {
     try {
-        const designations = await DesignationModel.find({ companyId: req.id })
+        const designations = await DesignationModel.find({ companyId: req.id }).sort({ createdAt: -1 });
         res.status(200).json({ statusCode: 200, success: true, data: designations })
     } catch (error) {
         next(new ApiError(400, error.message))

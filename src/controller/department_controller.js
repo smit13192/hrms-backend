@@ -21,7 +21,7 @@ async function addDepartment(req, res, next) {
 
 async function getDepartment(req, res, next) {
     try {
-        const departments = await DepartmentModel.find({ companyId: req.id })
+        const departments = await DepartmentModel.find({ companyId: req.id }).sort({ createdAt: -1 });
         res.status(200).json({ statusCode: 200, success: true, data: departments })
     } catch (error) {
         next(new ApiError(400, error.message))

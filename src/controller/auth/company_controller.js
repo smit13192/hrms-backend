@@ -185,7 +185,11 @@ async function deleteEmployee(req, res, next) {
 
 async function getEmployee(req, res, next) {
     try {
-        const employees = await EmployeeModel.find({ company: req.id, isWorking: true }).populate("department").populate("designation")
+        const employees = await EmployeeModel.find({ company: req.id, isWorking: true })
+        .populate("department")
+        .populate("designation")
+        .sort({ createdAt: -1 });
+        
         res.status(200).json({ statusCode: 200, success: true, data: employees });
     } catch (e) {
         next(new ApiError(400, e.message));

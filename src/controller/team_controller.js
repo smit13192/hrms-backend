@@ -24,42 +24,66 @@ async function getTeam(req, res, next) {
     try {
         debugger;
         if (req.role === EMPLOYEE_ROLE) {
-            const teams = await TeamModel.find({
+            const team = await TeamModel.find({
                 $or: [
-                    { children: req.id },
-                    { "leader.leaderId": req.id }
-                ]
+                    { members: req.id },
+                    { leaderId: req.id }
+                ],
+                isWorking: true
             })
-            .populate("projectTitle")
+            .populate("project")
             .populate({
-                path: "leader.leaderId",
+                path: "leaderId",
                 populate: [
                     { path: "designation" },
                     { path: "department" }
                 ]
             })
             .populate({
-                path: "leader.children",
-                populate:[ { path: "designation" } ,  { path: "department" }]
-            });
-        
-            const workingTeam = teams.filter((data) => data.isWorking === true);
-            res.status(200).json({ success: true, data: workingTeam });
+                path: "members",
+                populate: [
+                    { path: "designation" },
+                    { path: "department" }
+                ]
+            })
+            .sort({ createdAt: -1 });
+            
+            const responseData = {
+                success: true,
+                data: team.map(team => ({
+                    leader: {
+                        project: team.project,
+                        children: [{
+                            ...team.leaderId.toObject(),
+                            children: team.members.map(member => member.toObject())
+                        }]
+                    },
+                    companyId: team.companyId,
+                    startDate: team.startDate,
+                    endDate: team.endDate,
+                    isWorking: team.isWorking,
+                    createdAt: team.createdAt,
+                    updatedAt: team.updatedAt,
+                    id: team.id
+                }))
+            };
+
+            res.status(200).json(responseData);
         }
         else {
-            const teams = await TeamModel.find({ companyId: req.id })
-                .populate("projectTitle")
+            const teams = await TeamModel.find({ companyId: req.id,isWorking:true })
+                .populate("project")
                 .populate({
-                    path: "leader.leaderId",
+                    path: "leaderId",
                     populate:[ { path: "designation" } ,  { path: "department" }]
                 })
                 .populate({
-                    path: "leader.children",
+                    path: "members",
                     populate:[ { path: "designation" } ,  { path: "department" }]
-                });
+                })
+                .sort({ createdAt: -1 });
             
-            const workingTeam = teams.filter((data) => data.isWorking === true);
-            res.status(200).json({ success: true, data: workingTeam });
+            res.status(200).json({ success: true, data: teams });
         }
     } catch (e) {
         next(new ApiError(400, e.message));

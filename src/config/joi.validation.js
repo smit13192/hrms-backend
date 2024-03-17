@@ -25,7 +25,7 @@ const createCompanyValidation = Joi.object().keys({
     state: Joi.string().required(),
     city: Joi.string().required(),
     pincode: Joi.string().required(),
-    workCategory: Joi.array().items(Joi.string()),
+    workCategory: Joi.string().required(),
     publicId: Joi.string()
 })
 

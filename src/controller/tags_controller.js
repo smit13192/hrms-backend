@@ -28,7 +28,7 @@ async function getTags(req, res, next) {
         if (req.role === EMPLOYEE_ROLE) {
             companyId = await EmployeeModel.getCompanyId(req.id);
         }
-        const tags = await TagsModel.find({ companyId })
+        const tags = await TagsModel.find({ companyId }).sort({ createdAt: -1 });
         res.status(200).json({ success: true, data: tags })
     } catch (error) {
         next(new ApiError(400, error.message))

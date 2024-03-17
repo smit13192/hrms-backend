@@ -36,11 +36,11 @@ async function getToggleLog(req, res, next) {
         if (req.role === COMPANY_ROLE) {
             const employees = await EmployeeModel.find({ company: req.id });
             const employeeId = employees.map((e) => e._id);
-            const toggle = await ToggleLogModel.find({ empId: { $in: employeeId } }).populate("project").populate("tags");
+            const toggle = await ToggleLogModel.find({ empId: { $in: employeeId } }).populate("project").populate("tags").sort({ createdAt: -1 });
             res.status(200).json({ success: true, data: toggle });
         }
         else {
-            const toggles = await ToggleLogModel.find({ empId: req.id }).populate("project").populate("tags");
+            const toggles = await ToggleLogModel.find({ empId: req.id }).populate("project").populate("tags").sort({ createdAt: -1 });
             res.status(200).json({ success: true, data: toggles })
         }
     } catch (e) {

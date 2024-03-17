@@ -26,9 +26,8 @@ async function getProject(req, res, next) {
         if (req.role === EMPLOYEE_ROLE) {
             companyId = await EmployeeModel.getCompanyId(req.id);
         }
-        const projects = await ProjectModel.find({ companyId });
-        const workingProject = projects.filter((data) => data.isWorking == true)
-        res.status(200).json({ success: true, data: workingProject });
+        const projects = await ProjectModel.find({ companyId,isWorking:true }).sort({ createdAt: -1 });
+        res.status(200).json({ success: true, data: projects });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
