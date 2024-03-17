@@ -21,14 +21,14 @@ async function addProject(req, res, next) {
 
 async function getProject(req, res, next) {
     try {
-       
+
         let companyId = req.id;
         if (req.role === EMPLOYEE_ROLE) {
             companyId = await EmployeeModel.getCompanyId(req.id);
         }
         const projects = await ProjectModel.find({ companyId });
         const workingProject = projects.filter((data) => data.isWorking == true)
-        res.status(200).json({ success: true, data: workingProject });
+        res.status(200).json({ statusCode: 200, success: true, data: workingProject });
     } catch (e) {
         next(new ApiError(400, e.message));
     }

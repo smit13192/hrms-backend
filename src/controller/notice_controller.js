@@ -1,7 +1,6 @@
 const ApiError = require("../utils/error")
 const NoticeModel = require("../model/notice_model")
 const { EMPLOYEE_ROLE } = require("../config/string")
-const EmployeeModel = require("../model/employee_model")
 const { noticeValidation } = require("../config/joi.validation")
 
 async function addNotice(req, res, next) {
