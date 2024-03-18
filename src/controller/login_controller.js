@@ -5,6 +5,7 @@ const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string")
 const { createToken } = require("../authentication/jwt_token")
 const EmployeeModel = require("../model/employee_model")
 const UserlogModel = require("../model/userlog_model")
+const UserlogModel = require("../model/userlog_model")
 
 async function login(req, res, next) {
     try {
@@ -15,8 +16,11 @@ async function login(req, res, next) {
             if (comparePass === true) {
                 const token = createToken({ _id: findCompany._id, role: COMPANY_ROLE }, '24h');
                 res.status(200).json({ statusCode: 200, success: true, message: "login succesfully", token: token });
+                const token = createToken({ _id: findCompany._id, role: COMPANY_ROLE }, '24h');
+                res.status(200).json({ statusCode: 200, success: true, message: "login succesfully", token: token });
             }
             else {
+                return next(new ApiError(400, "Password is wrong"))
                 return next(new ApiError(400, "Password is wrong"))
             }
         }

@@ -2,6 +2,7 @@ const { Router } = require("express")
 const { addProject, getProject, updateProject, deleteProject, getOneProject } = require("../controller/project_controller")
 const { verifyUser } = require("../middleware/verify_user")
 const { COMPANY_ROLE,EMPLOYEE_ROLE } = require("../config/string")
+const { COMPANY_ROLE,EMPLOYEE_ROLE } = require("../config/string")
 
 const router = Router();
 

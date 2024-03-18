@@ -104,7 +104,7 @@ const projectValidation = Joi.object().keys({
     clientName: Joi.string().required(),
     status: Joi.string().valid("upcoming", "complete", "running").default("upcoming"),
     returnDate: Joi.date().allow(null),
-    companyId: Joi.string().required()
+    companyId: Joi.string().required(),
 });
 
 module.exports = {

@@ -3,6 +3,9 @@ const ProjectModel = require("../model/project_model")
 const { projectValidation } = require("../config/joi.validation");
 const EmployeeModel = require("../model/employee_model");
 const { EMPLOYEE_ROLE } = require("../config/string");
+const { projectValidation } = require("../config/joi.validation");
+const EmployeeModel = require("../model/employee_model");
+const { EMPLOYEE_ROLE } = require("../config/string");
 
 async function addProject(req, res, next) {
     try {
@@ -28,7 +31,7 @@ async function getProject(req, res, next) {
         }
         const projects = await ProjectModel.find({ companyId });
         const workingProject = projects.filter((data) => data.isWorking == true)
-        res.status(200).json({ success: true, data: workingProject });
+        res.status(200).json({ statusCode: 200, success: true, data: workingProject });
     } catch (e) {
         next(new ApiError(400, e.message));
     }

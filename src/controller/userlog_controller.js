@@ -1,6 +1,10 @@
 const ApiError = require("../utils/error")
 const UserlogModel = require("../model/userlog_model")
+const LeaveModel = require("../model/leave_model")
 const mongoose = require("mongoose")
+const { COMPANY_ROLE } = require("../config/string");
+const HolidayModel = require("../model/holiday_model");
+const moment = require("moment");
 
 async function startTime(req, res, next) {
     try {
@@ -12,6 +16,17 @@ async function startTime(req, res, next) {
 
         const currentDateWithoutTime = new Date(year, month, day);
 
+        const findLeave = await LeaveModel.findOne({ empId: req.id, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+
+        if (findLeave) {
+            return next(new ApiError(400, "Your leave day you cannot start timer"));
+        }
+
+        const findHoliday = await HolidayModel.findOne({ companyId: req.user.company, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+
+        if (findHoliday) {
+            return next(new ApiError(400, "In Holiday you can not start timer"));
+        }
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
         if (findCurrentDateUserlog) {
@@ -108,6 +123,7 @@ async function reportingTime(req, res, next) {
                     status(200).
                     json({
                         statusCode: 200,
+                        statusCode: 200,
                         success: true,
                         data: {
                             isTotalTimeRunning: false,
@@ -133,6 +149,87 @@ async function reportingTime(req, res, next) {
                     }
                 });
         }
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+async function breakingTime(req, res, next) {
+    try {
+        const id = req.id;
+        let time = 0;
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const day = currentDate.getDate();
+
+        const currentDateWithoutTime = new Date(year, month, day);
+
+        const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
+        if (!findUserLog) {
+            return res.status(200).json({
+                statusCode: 200,
+                success: true,
+                data: {
+                    isBreakingTimeRunning: false,
+                    totalBreakingTime: 0,
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0,
+                    isLogout: false
+                }
+            })
+        }
+        for (let i = 0; i < findUserLog.timeBlock.length - 1; i++) {
+            time += Math.floor((findUserLog.timeBlock[i + 1].startTime ?? currentDate) - findUserLog.timeBlock[i].endTime);
+        }
+        if (findUserLog.isLogout) {
+            return res.
+                status(200).
+                json({
+                    statusCode: 200,
+                    success: true,
+                    data: {
+                        isBreakingTimeRunning: false,
+                        totalBreakingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
+                    }
+                });
+        }
+        if (findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime == null) {
+            return res.
+                status(200).
+                json({
+                    statusCode: 200,
+                    success: true,
+                    data: {
+                        isBreakingTimeRunning: false,
+                        totalBreakingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
+                    }
+                });
+        }
+        time += (currentDate - findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime);
+        return res.
+            status(200).
+            json({
+                statusCode: 200,
+                success: true,
+                data: {
+                    isBreakingTimeRunning: true,
+                    totalBreakingTime: Math.floor(time / 1000),
+                    hours: Math.floor(time / 3600000),
+                    minutes: Math.floor((time / 60000) % 60),
+                    seconds: Math.floor((time / 1000) % 60),
+                    isLogout: false,
+                }
+            });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
