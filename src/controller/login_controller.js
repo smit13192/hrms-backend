@@ -93,7 +93,7 @@ async function logout(req, res, next) {
             .json({
                 statusCode: 200,
                 success: true,
-                message: "Log out successfully"
+                message: "Check out successfully"
             });
     } catch (error) {
         next(new ApiError(400, error.message))

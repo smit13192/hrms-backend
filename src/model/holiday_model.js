@@ -11,7 +11,7 @@ const holidaySchema = new Schema({
     },
     endDate: {
         type: Date,
-        default: null
+        required: true
     },
     holidayType: {
         type: String,

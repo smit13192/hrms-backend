@@ -33,31 +33,6 @@ async function getProject(req, res, next) {
     }
 }
 
-async function getOneProject(req, res, next) {
-//     try {
-//         if (req.role === EMPLOYEE_ROLE) {
-//             projectPipeline.unshift({
-//                 $match: {
-//                     employees: new Types.ObjectId(req.id),
-//                     _id: new Types.ObjectId(req.params.id)
-//                 }
-//             });
-//             const projects = await ProjectModel.aggregate(projectPipeline);
-//             return res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
-//         }
-//         projectPipeline.unshift({
-//             $match: {
-//                 companyId: new Types.ObjectId(req.id),
-//                 _id: new Types.ObjectId(req.params.id)
-//             }
-//         });
-//         const projects = await ProjectModel.aggregate(projectPipeline);
-//         res.status(200).json({ statusCode: 200, success: true, data: projects[0] });
-//     } catch (e) {
-//         next(new ApiError(400, e.message));
-//     }
-}
-
 async function updateProject(req, res, next) {
     try {
         await ProjectModel.findByIdAndUpdate({ _id: req.params.id }, { $set: req.body }, { new: true });
@@ -76,4 +51,4 @@ async function deleteProject(req, res, next) {
     }
 }
 
-module.exports = { addProject, getProject, getOneProject, updateProject, deleteProject };
+module.exports = { addProject, getProject, updateProject, deleteProject };

@@ -1,6 +1,10 @@
 const ApiError = require("../utils/error")
 const UserlogModel = require("../model/userlog_model")
+const LeaveModel = require("../model/leave_model")
 const mongoose = require("mongoose")
+const { COMPANY_ROLE } = require("../config/string");
+const HolidayModel = require("../model/holiday_model");
+const moment = require("moment");
 
 async function startTime(req, res, next) {
     try {
@@ -12,10 +16,21 @@ async function startTime(req, res, next) {
 
         const currentDateWithoutTime = new Date(year, month, day);
 
+        const findLeave = await LeaveModel.findOne({ empId: req.id, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+
+        if (findLeave) {
+            return next(new ApiError(400, "Your leave day you cannot start timer"));
+        }
+
+        const findHoliday = await HolidayModel.findOne({ companyId: req.user.company, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+
+        if (findHoliday) {
+            return next(new ApiError(400, "In Holiday you can not start timer"));
+        }
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
         if (findCurrentDateUserlog) {
-            if(findCurrentDateUserlog.isLogout) {
+            if (findCurrentDateUserlog.isLogout) {
                 return next(new ApiError(400, "After logout you can not start timer"));
             }
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
@@ -101,6 +116,7 @@ async function reportingTime(req, res, next) {
                             hours: Math.floor(time / 3600000),
                             minutes: Math.floor((time / 60000) % 60),
                             seconds: Math.floor((time / 1000) % 60),
+                            isLogout: findUserLog.isLogout,
                         }
                     });
             } else {
@@ -115,6 +131,7 @@ async function reportingTime(req, res, next) {
                             hours: Math.floor(time / 3600000),
                             minutes: Math.floor((time / 60000) % 60),
                             seconds: Math.floor((time / 1000) % 60),
+                            isLogout: findUserLog.isLogout,
                         }
                     });
             }
@@ -130,9 +147,91 @@ async function reportingTime(req, res, next) {
                         hours: Math.floor(time / 3600000),
                         minutes: Math.floor((time / 60000) % 60),
                         seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
                     }
                 });
         }
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+async function breakingTime(req, res, next) {
+    try {
+        const id = req.id;
+        let time = 0;
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const day = currentDate.getDate();
+
+        const currentDateWithoutTime = new Date(year, month, day);
+
+        const findUserLog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: id });
+        if (!findUserLog) {
+            return res.status(200).json({
+                statusCode: 200,
+                success: true,
+                data: {
+                    isBreakingTimeRunning: false,
+                    totalBreakingTime: 0,
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0,
+                    isLogout: false
+                }
+            })
+        }
+        for (let i = 0; i < findUserLog.timeBlock.length - 1; i++) {
+            time += Math.floor((findUserLog.timeBlock[i + 1].startTime ?? currentDate) - findUserLog.timeBlock[i].endTime);
+        }
+        if (findUserLog.isLogout) {
+            return res.
+                status(200).
+                json({
+                    statusCode: 200,
+                    success: true,
+                    data: {
+                        isBreakingTimeRunning: false,
+                        totalBreakingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
+                    }
+                });
+        }
+        if (findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime == null) {
+            return res.
+                status(200).
+                json({
+                    statusCode: 200,
+                    success: true,
+                    data: {
+                        isBreakingTimeRunning: false,
+                        totalBreakingTime: Math.floor(time / 1000),
+                        hours: Math.floor(time / 3600000),
+                        minutes: Math.floor((time / 60000) % 60),
+                        seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
+                    }
+                });
+        }
+        time += (currentDate - findUserLog.timeBlock[findUserLog.timeBlock.length - 1].endTime);
+        return res.
+            status(200).
+            json({
+                statusCode: 200,
+                success: true,
+                data: {
+                    isBreakingTimeRunning: true,
+                    totalBreakingTime: Math.floor(time / 1000),
+                    hours: Math.floor(time / 3600000),
+                    minutes: Math.floor((time / 60000) % 60),
+                    seconds: Math.floor((time / 1000) % 60),
+                    isLogout: false,
+                }
+            });
     } catch (e) {
         next(new ApiError(400, e.message))
     }
@@ -281,13 +380,121 @@ async function totalWorkingHours(req, res, next) {
         }
         let hours = Math.floor(totalSecond / 3600);
         let minute = Math.floor((totalSecond / 60) % 60);
-        res.status(200).json({ statusCode: 200, success: true, data: {
-            hours,
-            minute
-        } })
+        res.status(200).json({
+            statusCode: 200, success: true, data: {
+                hours,
+                minute
+            }
+        })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
 }
 
-module.exports = { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours };
+async function attendance(req, res, next) {
+    try {
+        let attendance = [];
+        let id;
+        let companyId;
+        if (req.role === COMPANY_ROLE) {
+            id = req.params.id;
+            companyId = req.id;
+        } else {
+            id = req.id;
+            companyId = req.user.company
+        }
+        const currentDate = new Date();
+
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth();
+
+        if (req.query.year && !isNaN(req.query.year)) year = parseInt(req.query.year);
+        if (req.query.month && !isNaN(req.query.month)) month = parseInt(req.query.month) - 1;
+
+        const startDate = new Date(year, month, 1);
+        const endDate = new Date(year, month + 1, 0);
+
+        const userlogs = await UserlogModel.find({
+            isLogout: true,
+            empId: id,
+            $and: [
+                { date: { $gte: startDate } },
+                { date: { $lte: endDate } }
+            ]
+        }).select("date");
+
+        for (let i = 0; i < userlogs.length; i++) {
+            attendance.push({ date: userlogs[i].date, type: 'Present' });
+        }
+
+
+
+        const holidays = await HolidayModel.find({
+            $and: [
+                {
+                    companyId
+                },
+                {
+                    $or: [
+                        { startDate: { $gte: startDate, $lte: endDate } },
+                        { endDate: { $gte: startDate, $lte: endDate } },
+                        {
+                            $and: [
+                                { startDate: { $lte: startDate } },
+                                { endDate: { $gte: endDate } }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }).select('startDate endDate');
+        const holidayDates = holidays.reduce((dates, holiday) => {
+            const datesBetween = getDatesBetween(holiday.startDate, holiday.endDate);
+            dates.push(...datesBetween);
+            return dates;
+        }, []);
+        for (let i = 0; i < holidayDates.length; i++) {
+            attendance.push({ date: holidayDates[i], type: 'Holiday' });
+        }
+        const dates = attendance.map(e => e.date);
+
+        const absentDates = [];
+
+        let monthStartDate = moment(startDate);
+
+        while (monthStartDate <= endDate) {
+            let formattedStartDate = monthStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+            if (!dates.some(date => moment(date).isSame(formattedStartDate, 'day'))) {
+                absentDates.push(monthStartDate.toDate());
+            }
+            monthStartDate.add(1, 'day');
+        }
+
+        for (let i = 0; i < absentDates.length; i++) {
+            attendance.push({ date: absentDates[i], type: 'Absent' });
+        }
+
+        attendance = attendance.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+        });
+        res.status(200).json({ statusCode: 200, success: true, data: attendance });
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+
+function getDatesBetween(startDate, endDate) {
+    const dates = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate < endDate) {
+        dates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dates;
+}
+
+module.exports = { startTime, stopTime, reportingTime, breakingTime, getUserLog, totalWorkingHours, attendance };

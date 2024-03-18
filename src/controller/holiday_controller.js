@@ -3,6 +3,7 @@ const HolidayModel = require("../model/holiday_model")
 const { EMPLOYEE_ROLE } = require("../config/string")
 const EmployeeModel = require("../model/employee_model")
 const { holidayValidation } = require("../config/joi.validation")
+const moment = require("moment")
 
 async function addHoliday(req, res, next) {
     try {
@@ -12,8 +13,17 @@ async function addHoliday(req, res, next) {
         if (holiValidation.error) {
             return next(new ApiError(403, holiValidation.error.details[0].message))
         }
+        let { startDate, endDate } = req.body;
 
-        const holiday = new HolidayModel(req.body)
+        if(!endDate) {
+            startDate = new Date(startDate)
+            endDate = moment(startDate).add(1, 'day');
+        } else {
+            endDate = new Date(endDate)
+            endDate = moment(endDate)
+        }
+
+        const holiday = new HolidayModel({...req.body, endDate: endDate.toDate()})
         await holiday.save()
         res.status(201).json({ statusCode: 201, success: true, data: holiday, message: "holiday added sucessfully" })
     } catch (e) {
