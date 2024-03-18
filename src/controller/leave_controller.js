@@ -25,11 +25,11 @@ async function getLeave(req, res, next) {
         if (req.role === COMPANY_ROLE) {
             const employees = await EmployeeModel.find({ company: req.id })
             const employeeId = employees.map((e) => e._id);
-            const leaves = await LeaveModel.find({ empId: { $in: employeeId } }).populate("empId")
+            const leaves = await LeaveModel.find({ empId: { $in: employeeId } }).populate("empId").sort({ createdAt: -1 });
             res.status(200).json({ statusCode: 200, success: true, data: leaves });
         }
         else {
-            const leaves = await LeaveModel.find({ empId: req.id });
+            const leaves = await LeaveModel.find({ empId: req.id }).sort({ createdAt: -1 });
             res.status(200).json({ statusCode: 200, success: true, data: leaves });
         }
     } catch (e) {

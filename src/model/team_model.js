@@ -1,4 +1,5 @@
-const { Schema, model } = require("mongoose")
+    const { Schema, model } = require("mongoose")
+
     const teamSchema = new Schema({
         companyId: {
             type: Schema.Types.ObjectId,
@@ -39,5 +40,7 @@ const { Schema, model } = require("mongoose")
             versionKey: false,
         }
     })
+
     const TeamModel = model("team", teamSchema)
+
     module.exports = TeamModel

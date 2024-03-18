@@ -25,6 +25,9 @@ async function login(req, res, next) {
         else {
             const findEmployee = await EmployeeModel.findOne({ email });
             if (findEmployee) {
+                if(findEmployee.isWorking===false){
+                    return next(new ApiError(400, "You have left the company as an employee..!"))
+                }
                 const comparePass = compareHash(password, findEmployee.password);
                 if (comparePass === true) {
                     const token = createToken({ _id: findEmployee._id, role: EMPLOYEE_ROLE }, '24h');
@@ -92,7 +95,7 @@ async function logout(req, res, next) {
             .json({
                 statusCode: 200,
                 success: true,
-                message: "Log out successfully"
+                message: "Check out successfully"
             });
     } catch (error) {
         next(new ApiError(400, error.message))

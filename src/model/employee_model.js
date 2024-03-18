@@ -12,7 +12,7 @@ const employeeSchema = new Schema({
         required: true,
     },
     middleName: {
-        type: String,
+        type: String
     },
     lastName: {
         type: String,
@@ -41,7 +41,7 @@ const employeeSchema = new Schema({
     gender: {
         type: String,
         required: true,
-        enum: ["Male", "Female"]
+        enum: ["Male", "Female","male","female"]
     },
     department: {
         type: Schema.Types.ObjectId,

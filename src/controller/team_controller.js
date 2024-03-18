@@ -45,7 +45,9 @@ async function getTeam(req, res, next) {
                     { path: "designation" },
                     { path: "department" }
                 ]
-            });
+            })
+            .sort({ createdAt: -1 });
+            
             const responseData = {
                 success: true,
                 data: team.map(team => ({
@@ -65,10 +67,11 @@ async function getTeam(req, res, next) {
                     id: team.id
                 }))
             };
+
             res.status(200).json(responseData);
         }
         else {
-            const teams = await TeamModel.find({ companyId: req.id })
+            const teams = await TeamModel.find({ companyId: req.id,isWorking:true })
                 .populate("project")
                 .populate({
                     path: "leaderId",
@@ -77,9 +80,10 @@ async function getTeam(req, res, next) {
                 .populate({
                     path: "members",
                     populate:[ { path: "designation" } ,  { path: "department" }]
-                });
-            const workingTeam = teams.filter((data) => data.isWorking === true);
-            res.status(200).json({ success: true, data: workingTeam });
+                })
+                .sort({ createdAt: -1 });
+            
+            res.status(200).json({ success: true, data: teams });
         }
     } catch (e) {
         next(new ApiError(400, e.message));

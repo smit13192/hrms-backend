@@ -3,7 +3,6 @@ const HolidayModel = require("../model/holiday_model")
 const { EMPLOYEE_ROLE } = require("../config/string")
 const { holidayValidation } = require("../config/joi.validation")
 const moment = require("moment")
-const { formateDate } = require("../utils/date")
 
 async function addHoliday(req, res, next) {
     try {
@@ -15,14 +14,15 @@ async function addHoliday(req, res, next) {
         }
         let { startDate, endDate } = req.body;
 
-        if (!endDate) {
-            startDate = formateDate(startDate);
+        if(!endDate) {
+            startDate = new Date(startDate)
             endDate = moment(startDate).add(1, 'day');
         } else {
-            startDate = formateDate(startDate);
-            endDate = formateDate(endDate);
+            endDate = new Date(endDate)
+            endDate = moment(endDate)
         }
-        const holiday = new HolidayModel({ ...req.body, startDate, endDate })
+
+        const holiday = new HolidayModel({...req.body, endDate: endDate.toDate()})
         await holiday.save()
         res.status(201).json({ statusCode: 201, success: true, data: holiday, message: "holiday added sucessfully" })
     } catch (e) {
@@ -37,7 +37,7 @@ async function getHoliday(req, res, next) {
         if (req.role === EMPLOYEE_ROLE) {
             companyId = req.user.company;
         }
-        const holidays = await HolidayModel.find({ companyId });
+        const holidays = await HolidayModel.find({ companyId }).sort({ createdAt: -1 });
         res.status(200).json({ statusCode: 200, success: true, data: holidays });
     } catch (e) {
         next(new ApiError(400, e.message))
