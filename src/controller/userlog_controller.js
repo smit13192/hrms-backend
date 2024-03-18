@@ -30,7 +30,7 @@ async function startTime(req, res, next) {
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
         if (findCurrentDateUserlog) {
-            if(findCurrentDateUserlog.isLogout) {
+            if (findCurrentDateUserlog.isLogout) {
                 return next(new ApiError(400, "After logout you can not start timer"));
             }
             if (findCurrentDateUserlog.timeBlock[findCurrentDateUserlog.timeBlock.length - 1].endTime !== null) {
@@ -116,13 +116,13 @@ async function reportingTime(req, res, next) {
                             hours: Math.floor(time / 3600000),
                             minutes: Math.floor((time / 60000) % 60),
                             seconds: Math.floor((time / 1000) % 60),
+                            isLogout: findUserLog.isLogout,
                         }
                     });
             } else {
                 return res.
                     status(200).
                     json({
-                        statusCode: 200,
                         statusCode: 200,
                         success: true,
                         data: {
@@ -131,6 +131,7 @@ async function reportingTime(req, res, next) {
                             hours: Math.floor(time / 3600000),
                             minutes: Math.floor((time / 60000) % 60),
                             seconds: Math.floor((time / 1000) % 60),
+                            isLogout: findUserLog.isLogout,
                         }
                     });
             }
@@ -146,6 +147,7 @@ async function reportingTime(req, res, next) {
                         hours: Math.floor(time / 3600000),
                         minutes: Math.floor((time / 60000) % 60),
                         seconds: Math.floor((time / 1000) % 60),
+                        isLogout: false,
                     }
                 });
         }
@@ -378,13 +380,121 @@ async function totalWorkingHours(req, res, next) {
         }
         let hours = Math.floor(totalSecond / 3600);
         let minute = Math.floor((totalSecond / 60) % 60);
-        res.status(200).json({ statusCode: 200, success: true, data: {
-            hours,
-            minute
-        } })
+        res.status(200).json({
+            statusCode: 200, success: true, data: {
+                hours,
+                minute
+            }
+        })
     } catch (e) {
         next(new ApiError(400, e.message))
     }
 }
 
-module.exports = { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours };
+async function attendance(req, res, next) {
+    try {
+        let attendance = [];
+        let id;
+        let companyId;
+        if (req.role === COMPANY_ROLE) {
+            id = req.params.id;
+            companyId = req.id;
+        } else {
+            id = req.id;
+            companyId = req.user.company
+        }
+        const currentDate = new Date();
+
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth();
+
+        if (req.query.year && !isNaN(req.query.year)) year = parseInt(req.query.year);
+        if (req.query.month && !isNaN(req.query.month)) month = parseInt(req.query.month) - 1;
+
+        const startDate = new Date(year, month, 1);
+        const endDate = new Date(year, month + 1, 0);
+
+        const userlogs = await UserlogModel.find({
+            isLogout: true,
+            empId: id,
+            $and: [
+                { date: { $gte: startDate } },
+                { date: { $lte: endDate } }
+            ]
+        }).select("date");
+
+        for (let i = 0; i < userlogs.length; i++) {
+            attendance.push({ date: userlogs[i].date, type: 'Present' });
+        }
+
+
+
+        const holidays = await HolidayModel.find({
+            $and: [
+                {
+                    companyId
+                },
+                {
+                    $or: [
+                        { startDate: { $gte: startDate, $lte: endDate } },
+                        { endDate: { $gte: startDate, $lte: endDate } },
+                        {
+                            $and: [
+                                { startDate: { $lte: startDate } },
+                                { endDate: { $gte: endDate } }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }).select('startDate endDate');
+        const holidayDates = holidays.reduce((dates, holiday) => {
+            const datesBetween = getDatesBetween(holiday.startDate, holiday.endDate);
+            dates.push(...datesBetween);
+            return dates;
+        }, []);
+        for (let i = 0; i < holidayDates.length; i++) {
+            attendance.push({ date: holidayDates[i], type: 'Holiday' });
+        }
+        const dates = attendance.map(e => e.date);
+
+        const absentDates = [];
+
+        let monthStartDate = moment(startDate);
+
+        while (monthStartDate <= endDate) {
+            let formattedStartDate = monthStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+            if (!dates.some(date => moment(date).isSame(formattedStartDate, 'day'))) {
+                absentDates.push(monthStartDate.toDate());
+            }
+            monthStartDate.add(1, 'day');
+        }
+
+        for (let i = 0; i < absentDates.length; i++) {
+            attendance.push({ date: absentDates[i], type: 'Absent' });
+        }
+
+        attendance = attendance.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+        });
+        res.status(200).json({ statusCode: 200, success: true, data: attendance });
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+
+function getDatesBetween(startDate, endDate) {
+    const dates = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate < endDate) {
+        dates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return dates;
+}
+
+module.exports = { startTime, stopTime, reportingTime, breakingTime, getUserLog, totalWorkingHours, attendance };

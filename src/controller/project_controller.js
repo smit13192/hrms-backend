@@ -3,9 +3,6 @@ const ProjectModel = require("../model/project_model")
 const { projectValidation } = require("../config/joi.validation");
 const EmployeeModel = require("../model/employee_model");
 const { EMPLOYEE_ROLE } = require("../config/string");
-const { projectValidation } = require("../config/joi.validation");
-const EmployeeModel = require("../model/employee_model");
-const { EMPLOYEE_ROLE } = require("../config/string");
 
 async function addProject(req, res, next) {
     try {

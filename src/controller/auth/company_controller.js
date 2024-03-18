@@ -45,7 +45,7 @@ async function verifyOtp(req, res, next) {
         const { email, otp } = req.body;
         const findOtp = await OtpModel.findOne({ email });
         if (!findOtp) {
-            return next(new ApiError(400, "Otp Expired"));
+            return next(new ApiError(400, "Please! enter otp "));
         }
         if (findOtp.otp !== otp) {
             return next(new ApiError(400, "Otp is wrong"));
