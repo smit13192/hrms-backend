@@ -48,27 +48,29 @@ async function getTeam(req, res, next) {
             })
             .sort({ createdAt: -1 });
             
-            const responseData = {
-                success: true,
-                data: team.map(team => ({
-                    leader: {
-                        project: team.project,
-                        children: [{
-                            ...team.leaderId.toObject(),
-                            children: team.members.map(member => member.toObject())
-                        }]
-                    },
-                    companyId: team.companyId,
-                    startDate: team.startDate,
-                    endDate: team.endDate,
-                    isWorking: team.isWorking,
-                    createdAt: team.createdAt,
-                    updatedAt: team.updatedAt,
-                    id: team.id
-                }))
-            };
+            // const responseData = {
+            //     success: true,
+            //     data: team.map(team => ({
+            //         leader: {
+            //             project: team.project,
+            //             children: [{
+            //                 ...team.leaderId.toObject(),
+            //                 children: team.members.map(member => member.toObject())
+            //             }]
+            //         },
+            //         companyId: team.companyId,
+            //         startDate: team.startDate,
+            //         endDate: team.endDate,
+            //         isWorking: team.isWorking,
+            //         createdAt: team.createdAt,
+            //         updatedAt: team.updatedAt,
+            //         id: team.id
+            //     }))
+            // };
 
-            res.status(200).json(responseData);
+            // res.status(200).json(responseData);
+            res.status(200).json({ success: true, data: team });
+
         }
         else {
             const teams = await TeamModel.find({ companyId: req.id,isWorking:true })
