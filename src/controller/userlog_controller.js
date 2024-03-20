@@ -2,9 +2,10 @@ const ApiError = require("../utils/error")
 const UserlogModel = require("../model/userlog_model")
 const LeaveModel = require("../model/leave_model")
 const mongoose = require("mongoose")
-const { COMPANY_ROLE } = require("../config/string");
+const { COMPANY_ROLE, EMPLOYEE_ROLE } = require("../config/string");
 const HolidayModel = require("../model/holiday_model");
 const moment = require("moment");
+const EmployeeModel = require("../model/employee_model");
 
 async function startTime(req, res, next) {
     try {
@@ -485,6 +486,59 @@ async function attendance(req, res, next) {
     }
 }
 
+async function getAllUserLog(req, res, next) {
+    try {
+        if (req.role === EMPLOYEE_ROLE) {
+            const id = req.id;
+            const userLogs = await UserlogModel.find({ empId: id }).populate("empId").sort({ createdAt: -1 });
+
+            const enrichedUserLogs = userLogs.map(userLog => {
+                const totalDurationInSeconds = userLog.timeBlock.reduce((total, timeBlock) => {
+                    const startTime = new Date(timeBlock.startTime);
+                    const endTime = timeBlock.endTime ? new Date(timeBlock.endTime) : new Date();
+                    return total + (endTime - startTime);
+                }, 0) / 1000; // Convert to seconds
+
+                return {
+                    ...userLog.toObject(),
+                    totalDurationInSeconds,
+                    seconds: Math.floor(totalDurationInSeconds % 60),
+                    minutes: Math.floor((totalDurationInSeconds / 60) % 60),
+                    hours: Math.floor(totalDurationInSeconds / 3600)
+                };
+            });
+
+            res.status(200).json({ success: true, data: enrichedUserLogs });
+        } else {
+            const employees = await EmployeeModel.find({ company: req.id });
+            const employeeIds = employees.map(e => e._id);
+            const userLogs = await UserlogModel.find({ empId: { $in: employeeIds } }).populate("empId").sort({ createdAt: -1 });
+
+            const enrichedUserLogs = userLogs.map(userLog => {
+                const totalDurationInSeconds = userLog.timeBlock.reduce((total, timeBlock) => {
+                    const startTime = new Date(timeBlock.startTime);
+                    const endTime = timeBlock.endTime ? new Date(timeBlock.endTime) : new Date();
+                    return total + (endTime - startTime);
+                }, 0) / 1000; // Convert to seconds
+
+                return {
+                    ...userLog.toObject(),
+                    totalDurationInSeconds,
+                    seconds: Math.floor(totalDurationInSeconds % 60),
+                    minutes: Math.floor((totalDurationInSeconds / 60) % 60),
+                    hours: Math.floor(totalDurationInSeconds / 3600)
+                };
+            });
+
+            res.status(200).json({ success: true, data: enrichedUserLogs });
+        }
+    } catch (e) {
+        next(new ApiError(400, e.message));
+    }
+}
+
+
+
 function getDatesBetween(startDate, endDate) {
     const dates = [];
     let currentDate = new Date(startDate);
@@ -497,4 +551,4 @@ function getDatesBetween(startDate, endDate) {
     return dates;
 }
 
-module.exports = { startTime, stopTime, reportingTime, breakingTime, getUserLog, totalWorkingHours, attendance };
+module.exports = { startTime, stopTime, reportingTime, breakingTime, getUserLog, getAllUserLog,totalWorkingHours, attendance };
