@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours, attendance, breakingTime } = require("../controller/userlog_controller")
+const { startTime, stopTime, reportingTime, getUserLog, totalWorkingHours, attendance, breakingTime, salary } = require("../controller/userlog_controller")
 const { EMPLOYEE_ROLE, COMPANY_ROLE } = require("../config/string")
 const { verifyUser } = require("../middleware/verify_user")
 
@@ -13,5 +13,6 @@ router.get("/", verifyUser(EMPLOYEE_ROLE), getUserLog)
 router.get("/total-working-hours", verifyUser(EMPLOYEE_ROLE), totalWorkingHours)
 router.get("/attendance", verifyUser(EMPLOYEE_ROLE), attendance)
 router.get("/attendance/:id", verifyUser(COMPANY_ROLE), attendance)
+router.get("/salary", verifyUser(COMPANY_ROLE), salary)
 
 module.exports = router
