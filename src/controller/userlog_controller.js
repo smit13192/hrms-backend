@@ -16,7 +16,7 @@ async function startTime(req, res, next) {
 
         const currentDateWithoutTime = new Date(year, month, day);
 
-        const findLeave = await LeaveModel.findOne({ empId: req.id, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
+        const findLeave = await LeaveModel.findOne({ empId: req.id, startDate: { $lte: currentDate }, endDate: { $gte: currentDate },status:"approved" });
 
         if (findLeave) {
             return next(new ApiError(400, "Your leave day you cannot start timer"));
@@ -25,7 +25,7 @@ async function startTime(req, res, next) {
         const findHoliday = await HolidayModel.findOne({ companyId: req.user.company, startDate: { $lte: currentDate }, endDate: { $gte: currentDate } });
 
         if (findHoliday) {
-            return next(new ApiError(400, "In Holiday you can not start timer"));
+            return next(new ApiError(400, "In Holiday you can not start timer! enjoy holiday"));
         }
         const findCurrentDateUserlog = await UserlogModel.findOne({ date: currentDateWithoutTime, empId: req.id });
 
