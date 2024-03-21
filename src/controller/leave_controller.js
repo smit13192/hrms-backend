@@ -12,9 +12,18 @@ async function addLeave(req, res, next) {
         if (leaveValid.error) {
             return next(new ApiError(403, leaveValid.error.details[0].message))
         }
-        const leave = new LeaveModel(req.body);
+        let { startDate, endDate } = req.body;
+
+        if (!endDate) {
+            startDate = formateDate(startDate);
+            endDate = moment(startDate).add(1, 'day');
+        } else {
+            startDate = formateDate(startDate);
+            endDate = formateDate(endDate);
+        }
+        const leave = new LeaveModel({ ...req.body, startDate, endDate });
         await leave.save();
-        res.status(201).json({ statusCode: 201 , success: true, data: leave, message: "leave added successfully" });
+        res.status(201).json({ statusCode: 201, success: true, data: leave, message: "leave added successfully" });
     } catch (e) {
         next(new ApiError(400, e.message));
     }
@@ -37,7 +46,6 @@ async function getLeave(req, res, next) {
     }
 }
 
-//you only update leave when leave start date is greater than today's date and status is pending
 async function updateLeave(req, res, next) {
     try {
         const leave = await LeaveModel.findOneAndUpdate({ _id: req.params.id, status: 'pending' }, { $set: req.body }, { new: true, runValidators: true });

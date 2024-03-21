@@ -616,6 +616,114 @@ function getDatesBetween(startDate, endDate) {
   return dates;
 }
 
+async function salary(req, res, next) {
+    try {
+
+        const currentDate = new Date();
+
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth() + 1;
+
+        if (req.query.year && !isNaN(req.query.year)) year = parseInt(req.query.year);
+        if (req.query.month && !isNaN(req.query.month)) month = parseInt(req.query.month);
+
+        let totalHoursInSeconds = req.user.workingHour * 20 * 3600;
+
+        const employees = await EmployeeModel.aggregate([
+            {
+                $match: {
+                    company: { $eq: new mongoose.Types.ObjectId(req.id) }
+                }
+            },
+            {
+                $lookup: {
+                    localField: "department",
+                    foreignField: "_id",
+                    from: "departments",
+                    as: "department"
+                }
+            },
+            {
+                $lookup: {
+                    localField: "designation",
+                    foreignField: "_id",
+                    from: "designations",
+                    as: "designation"
+                }
+            },
+            {
+                $addFields: {
+                    designation: { $first: "$designation" },
+                    department: { $first: "$department" }
+                }
+            },
+            {
+                $lookup: {
+                    localField: "_id",
+                    foreignField: "empId",
+                    from: "userlogs",
+                    as: "userlogs",
+                    pipeline: [
+                        {
+                            $match: {
+                                isLogout: true,
+                                $expr: {
+                                    $and: [
+                                        { $eq: [{ $year: '$date' }, year] },
+                                        { $eq: [{ $month: '$date' }, month] }
+                                    ]
+                                },
+                            }
+                        },
+                        {
+                            $unwind: "$timeBlock"
+                        },
+                        {
+                            $group: {
+                                _id: "$date",
+                                totalDuration: {
+                                    $sum: {
+                                        $subtract: ['$timeBlock.endTime', '$timeBlock.startTime']
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                date: '$_id',
+                                totalDurationInSeconds: {
+                                    $floor: { $divide: ['$totalDuration', 1000] }
+                                },
+                            }
+                        },
+                        {
+                            $sort: {
+                                date: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    totalSeconds: { $sum: "$userlogs.totalDurationInSeconds" }
+                }
+            },
+            {
+                $addFields: {
+                    paySalary: {
+                        $divide: [ { $multiply: [ "$totalSeconds", "$salary" ] }, totalHoursInSeconds ]
+                    }
+                }
+            }
+        ]).exec();
+        res.status(200).json({ statusCode: 200, success: true, data: employees });
+    } catch (e) {
+        next(new ApiError(400, e.message))
+    }
+}
+
 module.exports = {
   startTime,
   stopTime,
@@ -624,5 +732,5 @@ module.exports = {
   getUserLog,
   getAllUserLog,
   totalWorkingHours,
-  attendance,
+  attendance, salary,
 };
