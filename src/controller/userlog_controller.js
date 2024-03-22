@@ -618,226 +618,226 @@ function getDatesBetween(startDate, endDate) {
 
 async function salary(req, res, next) {
   try {
-    if(req.role===COMPANY_ROLE){
-    
-    const currentDate = new Date();
+    if (req.role === COMPANY_ROLE) {
+      const currentDate = new Date();
 
-    let year = currentDate.getFullYear();
-    let month = currentDate.getMonth() + 1;
+      let year = currentDate.getFullYear();
+      let month = currentDate.getMonth() + 1;
 
-    if (req.query.year && !isNaN(req.query.year))
-      year = parseInt(req.query.year);
-    if (req.query.month && !isNaN(req.query.month))
-      month = parseInt(req.query.month);
+      if (req.query.year && !isNaN(req.query.year))
+        year = parseInt(req.query.year);
+      if (req.query.month && !isNaN(req.query.month))
+        month = parseInt(req.query.month);
 
-    let totalHoursInSeconds = req.user.workingHour * 20 * 3600;
+      let totalHoursInSeconds = req.user.workingHour * 20 * 3600;
 
-    const employees = await EmployeeModel.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(req.id) } },
-      {
-        $match: {
-          isWorking: true,
+      const employees = await EmployeeModel.aggregate([
+        {
+          $match: {
+            company: { $eq: new mongoose.Types.ObjectId(req.id) },
+          },
         },
-      },
-      {
-        $lookup: {
-          localField: "department",
-          foreignField: "_id",
-          from: "departments",
-          as: "department",
+        {
+          $match: {
+            isWorking: true,
+          },
         },
-      },
-      {
-        $lookup: {
-          localField: "designation",
-          foreignField: "_id",
-          from: "designations",
-          as: "designation",
+        {
+          $lookup: {
+            localField: "department",
+            foreignField: "_id",
+            from: "departments",
+            as: "department",
+          },
         },
-      },
-      {
-        $addFields: {
-          designation: { $first: "$designation" },
-          department: { $first: "$department" },
+        {
+          $lookup: {
+            localField: "designation",
+            foreignField: "_id",
+            from: "designations",
+            as: "designation",
+          },
         },
-      },
-      {
-        $lookup: {
-          localField: "_id",
-          foreignField: "empId",
-          from: "userlogs",
-          as: "userlogs",
-          pipeline: [
-            {
-              $match: {
-                isLogout: true,
-                $expr: {
-                  $and: [
-                    { $eq: [{ $year: "$date" }, year] },
-                    { $eq: [{ $month: "$date" }, month] },
-                  ],
-                },
-              },
-            },
-            {
-              $unwind: "$timeBlock",
-            },
-            {
-              $group: {
-                _id: "$date",
-                totalDuration: {
-                  $sum: {
-                    $subtract: ["$timeBlock.endTime", "$timeBlock.startTime"],
+        {
+          $addFields: {
+            designation: { $first: "$designation" },
+            department: { $first: "$department" },
+          },
+        },
+        {
+          $lookup: {
+            localField: "_id",
+            foreignField: "empId",
+            from: "userlogs",
+            as: "userlogs",
+            pipeline: [
+              {
+                $match: {
+                  isLogout: true,
+                  $expr: {
+                    $and: [
+                      { $eq: [{ $year: "$date" }, year] },
+                      { $eq: [{ $month: "$date" }, month] },
+                    ],
                   },
                 },
               },
-            },
-            {
-              $project: {
-                _id: 0,
-                date: "$_id",
-                totalDurationInSeconds: {
-                  $floor: { $divide: ["$totalDuration", 1000] },
-                },
+              {
+                $unwind: "$timeBlock",
               },
-            },
-            {
-              $sort: {
-                date: 1,
-              },
-            },
-          ],
-        },
-      },
-      {
-        $addFields: {
-          totalSeconds: { $sum: "$userlogs.totalDurationInSeconds" },
-        },
-      },
-      {
-        $addFields: {
-          paySalary: {
-            $divide: [
-              { $multiply: ["$totalSeconds", "$salary"] },
-              totalHoursInSeconds,
-            ],
-          },
-        },
-      },
-     
-    ]).exec();
-    res.status(200).json({ statusCode: 200, success: true, data: employees });
-  }
-  else{
-  debugger;
-    const currentDate = new Date();
-    let year = currentDate.getFullYear();
-    let month = currentDate.getMonth();
-
-    let totalHoursInSeconds = req.user.workingHour * 20 * 3600;
-
-    const employees = await EmployeeModel.aggregate([
-      {
-        $match: {
-          company: { $eq: new mongoose.Types.ObjectId(req.id) },
-        },
-      },
-      {
-        $match: {
-          isWorking: true,
-        },
-      },
-      {
-        $lookup: {
-          localField: "department",
-          foreignField: "_id",
-          from: "departments",
-          as: "department",
-        },
-      },
-      {
-        $lookup: {
-          localField: "designation",
-          foreignField: "_id",
-          from: "designations",
-          as: "designation",
-        },
-      },
-      {
-        $addFields: {
-          designation: { $first: "$designation" },
-          department: { $first: "$department" },
-        },
-      },
-      {
-        $lookup: {
-          localField: "_id",
-          foreignField: "empId",
-          from: "userlogs",
-          as: "userlogs",
-          pipeline: [
-            {
-              $match: {
-                isLogout: true,
-                $expr: {
-                  $and: [
-                    { $eq: [{ $year: "$date" }, year] },
-                    { $eq: [{ $month: "$date" }, month] },
-                  ],
-                },
-              },
-            },
-            {
-              $unwind: "$timeBlock",
-            },
-            {
-              $group: {
-                _id: "$date",
-                totalDuration: {
-                  $sum: {
-                    $subtract: ["$timeBlock.endTime", "$timeBlock.startTime"],
+              {
+                $group: {
+                  _id: "$date",
+                  totalDuration: {
+                    $sum: {
+                      $subtract: ["$timeBlock.endTime", "$timeBlock.startTime"],
+                    },
                   },
                 },
               },
-            },
-            {
-              $project: {
-                _id: 0,
-                date: "$_id",
-                totalDurationInSeconds: {
-                  $floor: { $divide: ["$totalDuration", 1000] },
+              {
+                $project: {
+                  _id: 0,
+                  date: "$_id",
+                  totalDurationInSeconds: {
+                    $floor: { $divide: ["$totalDuration", 1000] },
+                  },
                 },
               },
-            },
-            {
-              $sort: {
-                date: 1,
+              {
+                $sort: {
+                  date: 1,
+                },
               },
-            },
-          ],
-        },
-      },
-      {
-        $addFields: {
-          totalSeconds: { $sum: "$userlogs.totalDurationInSeconds" },
-        },
-      },
-      {
-        $addFields: {
-          paySalary: {
-            $divide: [
-              { $multiply: ["$totalSeconds", "$salary"] },
-              totalHoursInSeconds,
             ],
           },
         },
-      },
-    ]).exec();
-    res.status(200).json({ statusCode: 200, success: true, data: employees });
-  }
+        {
+          $addFields: {
+            totalSeconds: { $sum: "$userlogs.totalDurationInSeconds" },
+          },
+        },
+        {
+          $addFields: {
+            paySalary: {
+              $divide: [
+                { $multiply: ["$totalSeconds", "$salary"] },
+                totalHoursInSeconds,
+              ],
+            },
+          },
+        },
+      ]).exec();
+      res.status(200).json({ statusCode: 200, success: true, data: employees });
+    } else {
+      debugger;
+      const currentDate = new Date();
+      let year = currentDate.getFullYear();
+      let month = currentDate.getMonth()+1;
+
+      const findWorkingHour = await EmployeeModel.findById(req.id).populate('company');
+      const workingHour=findWorkingHour.company.workingHour
+      let totalHoursInSeconds = workingHour * 20 * 3600;
+
+      const employees = await EmployeeModel.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(req.id) } },
+        {
+          $match: {
+            isWorking: true,
+          },
+        },
+        {
+          $lookup: {
+            localField: "department",
+            foreignField: "_id",
+            from: "departments",
+            as: "department",
+          },
+        },
+        {
+          $lookup: {
+            localField: "designation",
+            foreignField: "_id",
+            from: "designations",
+            as: "designation",
+          },
+        },
+        {
+          $addFields: {
+            designation: { $first: "$designation" },
+            department: { $first: "$department" },
+          },
+        },
+        {
+          $lookup: {
+            localField: "_id",
+            foreignField: "empId",
+            from: "userlogs",
+            as: "userlogs",
+            pipeline: [
+              {
+                $match: {
+                  isLogout: true,
+                  $expr: {
+                    $and: [
+                      { $eq: [{ $year: "$date" }, year] },
+                      { $eq: [{ $month: "$date" }, month] },
+                    ],
+                  },
+                },
+              },
+              {
+                $unwind: "$timeBlock",
+              },
+              {
+                $group: {
+                  _id: "$date",
+                  totalDuration: {
+                    $sum: {
+                      $subtract: ["$timeBlock.endTime", "$timeBlock.startTime"],
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  date: "$_id",
+                  totalDurationInSeconds: {
+                    $floor: { $divide: ["$totalDuration", 1000] },
+                  },
+                },
+              },
+              {
+                $sort: {
+                  date: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            totalSeconds: { $sum: "$userlogs.totalDurationInSeconds" },
+          },
+        },
+        {
+          $addFields: {
+            paySalary: {
+              $divide: [
+                { $multiply: ["$totalSeconds", "$salary"] },
+                totalHoursInSeconds,
+              ],
+            },
+          },
+        },
+      ]).exec();
+      const employeeData = employees.length > 0 ? employees[0] : null;
+      res.status(200).json({ statusCode: 200, success: true, data: employeeData });
+    }
   } catch (e) {
     next(new ApiError(400, e.message));
-  } 
+  }
 }
 
 module.exports = {
