@@ -37,7 +37,7 @@ async function getHoliday(req, res, next) {
         if (req.role === EMPLOYEE_ROLE) {
             companyId = req.user.company;
         }
-        const holidays = await HolidayModel.find({ companyId }).sort({ createdAt: -1 });
+        const holidays = await HolidayModel.find({ companyId }).sort({ startDate: -1 });
         res.status(200).json({ statusCode: 200, success: true, data: holidays });
     } catch (e) {
         next(new ApiError(400, e.message))

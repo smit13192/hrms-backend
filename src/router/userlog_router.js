@@ -14,6 +14,6 @@ router.get("/log", verifyUser([EMPLOYEE_ROLE,COMPANY_ROLE]), getAllUserLog)
 router.get("/total-working-hours", verifyUser(EMPLOYEE_ROLE), totalWorkingHours)
 router.get("/attendance", verifyUser(EMPLOYEE_ROLE), attendance)
 router.get("/attendance/:id", verifyUser(COMPANY_ROLE), attendance)
-router.get("/salary", verifyUser(COMPANY_ROLE), salary)
+router.get("/salary", verifyUser([EMPLOYEE_ROLE,COMPANY_ROLE]), salary)
 
 module.exports = router
