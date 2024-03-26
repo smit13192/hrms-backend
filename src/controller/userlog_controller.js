@@ -529,11 +529,20 @@ async function attendance(req, res, next) {
 
 async function getAllUserLog(req, res, next) {
   try {
+    const currentDate = new Date();
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const day = currentDate.getDate();
+
+    const currentDateWithoutTime = new Date(year, month, day);
+
     if (req.role === EMPLOYEE_ROLE) {
       const id = req.id;
-      const userLogs = await UserlogModel.find({ empId: id })
+      const userLogs = await UserlogModel.find({ empId: id, $or: [ { date: currentDateWithoutTime }, { isLogout: true } ] })
         .populate("empId")
         .sort({ createdAt: -1 });
+
 
       const enrichedUserLogs = userLogs.map((userLog) => {
         const totalDurationInSeconds =
@@ -566,7 +575,7 @@ async function getAllUserLog(req, res, next) {
     } else {
       const employees = await EmployeeModel.find({ company: req.id });
       const employeeIds = employees.map((e) => e._id);
-      const userLogs = await UserlogModel.find({ empId: { $in: employeeIds } })
+      const userLogs = await UserlogModel.find({ empId: { $in: employeeIds }, $or: [ { date: currentDateWithoutTime }, { isLogout: true } ]  })
         .populate("empId")
         .sort({ createdAt: -1 });
 

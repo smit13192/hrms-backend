@@ -127,7 +127,7 @@ async function logout(req, res, next) {
       userlog.totalBreakTime = totalBreakSecond;
       await userlog.save();
     }
-    console.log(userlog,"userloguserlog");
+
     return res.status(200).json({
       statusCode: 200,
       success: true,
