@@ -17,14 +17,12 @@ async function login(req, res, next) {
           { _id: findCompany._id, role: COMPANY_ROLE },
           "24h"
         );
-        res
-          .status(200)
-          .json({
-            statusCode: 200,
-            success: true,
-            message: "login succesfully",
-            token: token,
-          });
+        res.status(200).json({
+          statusCode: 200,
+          success: true,
+          message: "login succesfully",
+          token: token,
+        });
       } else {
         return next(new ApiError(400, "Password is wrong"));
         return next(new ApiError(400, "Password is wrong"));
@@ -43,14 +41,12 @@ async function login(req, res, next) {
             { _id: findEmployee._id, role: EMPLOYEE_ROLE },
             "24h"
           );
-          res
-            .status(200)
-            .json({
-              statusCode: 200,
-              success: true,
-              message: "login succesfully",
-              token: token,
-            });
+          res.status(200).json({
+            statusCode: 200,
+            success: true,
+            message: "login succesfully",
+            token: token,
+          });
         } else {
           return next(new ApiError(400, "Password is wrong"));
         }
@@ -74,14 +70,12 @@ async function employeeLogin(req, res, next) {
           _id: findEmployee._id,
           role: EMPLOYEE_ROLE,
         });
-        res
-          .status(200)
-          .json({
-            statusCode: 200,
-            success: true,
-            message: "login succesfully",
-            token: token,
-          });
+        res.status(200).json({
+          statusCode: 200,
+          success: true,
+          message: "login succesfully",
+          token: token,
+        });
       } else {
         return next(new ApiError(400, "Password is wrong"));
       }
@@ -127,7 +121,6 @@ async function logout(req, res, next) {
       userlog.totalBreakTime = totalBreakSecond;
       await userlog.save();
     }
-    console.log(userlog,"userloguserlog");
     return res.status(200).json({
       statusCode: 200,
       success: true,
