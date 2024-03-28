@@ -25,7 +25,8 @@ const userlogSchema = new Schema({
         }
     }],
     totalBreakTime:{
-        type:Number
+        type:Number,
+        default: null,
     }
 }, {
     timestamps: true,
